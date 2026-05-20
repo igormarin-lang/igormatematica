@@ -70,6 +70,34 @@ on public.answers for select
 to anon, authenticated
 using (true);
 
+drop policy if exists "prototype write sessions" on public.sessions;
+create policy "prototype write sessions"
+on public.sessions for all
+to anon, authenticated
+using (true)
+with check (true);
+
+drop policy if exists "prototype write players" on public.players;
+create policy "prototype write players"
+on public.players for all
+to anon, authenticated
+using (true)
+with check (true);
+
+drop policy if exists "prototype write questions" on public.questions;
+create policy "prototype write questions"
+on public.questions for all
+to anon, authenticated
+using (true)
+with check (true);
+
+drop policy if exists "prototype write answers" on public.answers;
+create policy "prototype write answers"
+on public.answers for all
+to anon, authenticated
+using (true)
+with check (true);
+
 create index if not exists players_session_id_idx on public.players(session_id);
 create index if not exists questions_session_round_idx on public.questions(session_id, round_number);
 create index if not exists answers_session_round_idx on public.answers(session_id, round_number);
