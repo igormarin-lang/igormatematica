@@ -88,47 +88,60 @@ export function PlayerSession({ code }: { code: string }) {
 
   if (!me) {
     return (
-      <main className="grid min-h-screen place-items-center px-5 py-10">
-        <form onSubmit={join} className="w-full max-w-md rounded-3xl bg-white p-6 shadow-soft ring-1 ring-slate-200 sm:p-8">
-          <Link href="/" className="font-black text-raceBlue">
-            ← trocar código
-          </Link>
-          <p className="mt-6 text-sm font-black uppercase text-raceRed">Sessão {code}</p>
-          <h1 className="mt-2 text-4xl font-black">Seu nome</h1>
+      <main className="grid min-h-screen place-items-center px-4 py-5 sm:px-5 sm:py-10">
+        <form onSubmit={join} className="w-full max-w-md overflow-hidden rounded-[2rem] bg-white shadow-soft ring-1 ring-slate-200">
+          <div className="speed-lines p-5 text-white">
+            <Link href="/" className="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-black">
+              Trocar código
+            </Link>
+            <p className="mt-8 text-sm font-black uppercase text-flagYellow">Sessão {code}</p>
+            <h1 className="mt-2 text-5xl font-black leading-none">Seu nome</h1>
+          </div>
+          <div className="p-5 sm:p-7">
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
             maxLength={24}
             placeholder="Ex.: Ana"
-            className="mt-6 h-16 w-full rounded-2xl border-2 border-slate-200 px-4 text-xl font-bold outline-none focus:border-raceRed"
+            className="h-16 w-full rounded-2xl border-2 border-slate-200 px-4 text-xl font-bold outline-none focus:border-raceRed"
           />
-          <Button className="mt-5 w-full" type="submit" disabled={loading || name.trim().length < 2}>
+          <Button className="mt-5 w-full sm:min-h-16" type="submit" disabled={loading || name.trim().length < 2}>
             {loading ? "Entrando..." : "Entrar na corrida"}
           </Button>
           {message || error ? <p className="mt-4 rounded-xl bg-red-50 p-3 font-bold text-raceRed">{message || error}</p> : null}
+          </div>
         </form>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-5">
+    <main className="min-h-screen px-4 py-4 sm:py-6">
       <section className="mx-auto max-w-xl space-y-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-black uppercase text-raceRed">Sessão {code}</p>
-            <h1 className="text-3xl font-black">{me.name}</h1>
+        <div className="rounded-[2rem] bg-slate-950 p-4 text-white shadow-soft sm:p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase text-flagYellow">Sessão {code}</p>
+              <h1 className="truncate text-3xl font-black">{me.name}</h1>
+            </div>
+            <Timer endsAt={state?.session.question_ends_at ?? null} />
           </div>
-          <Timer endsAt={state?.session.question_ends_at ?? null} />
+          <div className="mt-4 race-lane relative h-20 overflow-hidden rounded-[1.5rem] ring-1 ring-white/10">
+            <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-pitGreen/50 to-flagYellow/30 transition-all" style={{ width: `${progress * 100}%` }} />
+            <span className="absolute bottom-2 text-4xl drop-shadow-lg transition-all" style={{ left: `calc(12px + ${progress * 100}% - ${progress * 58}px)` }}>
+              🏎️
+            </span>
+            <span className="checkered absolute bottom-0 right-0 top-0 w-10" />
+          </div>
         </div>
 
         <QuestionCard question={state?.question ?? null} status={state?.session.status ?? "waiting"} />
 
-        <form onSubmit={sendAnswer} className="rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-200">
+        <form onSubmit={sendAnswer} className="rounded-[2rem] bg-white p-5 shadow-soft ring-1 ring-slate-200">
           <label className="font-black" htmlFor="answer">
             Sua resposta
           </label>
-          <div className="mt-3 grid grid-cols-[1fr_auto] gap-3">
+          <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
             <input
               id="answer"
               type="number"
@@ -137,9 +150,9 @@ export function PlayerSession({ code }: { code: string }) {
               onChange={(event) => setAnswer(event.target.value)}
               disabled={!canAnswer}
               placeholder="0"
-              className="h-16 min-w-0 rounded-2xl border-2 border-slate-200 px-4 text-2xl font-black outline-none focus:border-raceRed disabled:bg-slate-100"
+              className="h-16 min-w-0 rounded-2xl border-2 border-slate-200 px-4 text-center text-3xl font-black outline-none focus:border-raceRed disabled:bg-slate-100 sm:text-left"
             />
-            <Button type="submit" disabled={!canAnswer}>
+            <Button className="min-h-16" type="submit" disabled={!canAnswer}>
               Responder
             </Button>
           </div>
@@ -148,29 +161,19 @@ export function PlayerSession({ code }: { code: string }) {
           </p>
         </form>
 
-        <div className="rounded-3xl bg-asphalt p-4 shadow-soft">
-          <div className="race-lane relative h-20 overflow-hidden rounded-2xl">
-            <div className="absolute inset-y-0 left-0 bg-pitGreen/35 transition-all" style={{ width: `${progress * 100}%` }} />
-            <span className="absolute bottom-2 text-4xl transition-all" style={{ left: `calc(12px + ${progress * 100}% - ${progress * 58}px)` }}>
-              🏎️
-            </span>
-            <span className="checkered absolute bottom-0 right-0 top-0 w-9" />
-          </div>
-        </div>
-
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-[1.5rem] bg-white p-4 text-center shadow-sm ring-1 ring-slate-200">
             <strong className="block text-3xl font-black">{myRank + 1 || "-"}</strong>
             <span className="font-bold text-slate-500">posição</span>
           </div>
-          <div className="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-[1.5rem] bg-white p-4 text-center shadow-sm ring-1 ring-slate-200">
             <strong className="block text-3xl font-black">{me.score}</strong>
             <span className="font-bold text-slate-500">pontos</span>
           </div>
         </div>
 
         {state?.session.status === "finished" ? (
-          <div className="rounded-3xl bg-green-50 p-5 ring-1 ring-green-100">
+          <div className="rounded-[2rem] bg-green-50 p-5 ring-1 ring-green-100">
             <h2 className="text-2xl font-black text-green-800">Vencedor: {state.winner?.name ?? "turma"}</h2>
             <div className="mt-4">
               <Ranking players={state.ranking} compact />
