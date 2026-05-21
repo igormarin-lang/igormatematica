@@ -2,6 +2,7 @@ export type GameStatus = "waiting" | "running" | "paused" | "finished";
 export type Difficulty = "facil" | "medio" | "dificil";
 export type CarModel = "classic" | "formula" | "kart" | "future" | "mini" | "futuristic" | "turbo";
 export type StudentTheme = "if-green" | "neon" | "classroom" | "arcade" | "minimal";
+export type PlayerStatus = "active" | "kicked" | "disconnected";
 
 export type Session = {
   id: string;
@@ -12,6 +13,7 @@ export type Session = {
   question_started_at: string | null;
   question_ends_at: string | null;
   winner_player_id: string | null;
+  entries_locked: boolean | null;
   created_at: string;
 };
 
@@ -26,6 +28,7 @@ export type Player = {
   car_sticker: string | null;
   celebration_emoji: string | null;
   student_theme: StudentTheme | string | null;
+  status: PlayerStatus | string | null;
   joined_at: string;
 };
 
@@ -54,11 +57,13 @@ export type PublicQuestion = Omit<Question, "correct_answer">;
 
 export type PlayerWithAnswered = Player & {
   answered_current_round: boolean;
+  correct_answers: number;
 };
 
 export type GameState = {
   session: Session;
   players: PlayerWithAnswered[];
+  removedPlayers: PlayerWithAnswered[];
   question: PublicQuestion | null;
   ranking: PlayerWithAnswered[];
   answeredCount: number;

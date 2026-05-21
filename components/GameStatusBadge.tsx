@@ -1,7 +1,7 @@
 import type { GameStatus } from "@/types/game";
 
 const labels: Record<GameStatus, string> = {
-  waiting: "Aguardando início",
+  waiting: "Aguardando largada",
   running: "Corrida em andamento",
   paused: "Corrida pausada",
   finished: "Corrida finalizada"
@@ -21,4 +21,3 @@ export function GameStatusBadge({ status }: { status: GameStatus }) {
     </span>
   );
 }
-

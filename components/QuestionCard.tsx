@@ -7,7 +7,7 @@ export function QuestionCard({ question, status }: { question: PublicQuestion | 
         {question ? `Nível ${question.difficulty}` : status === "waiting" ? "Sala de espera" : "Pergunta"}
       </p>
       <h2 className="mt-3 text-4xl font-black leading-none sm:text-6xl md:text-7xl">
-        {question?.expression ?? "Aguardando início"}
+        {question?.expression ?? "Aguardando largada"}
       </h2>
     </div>
   );

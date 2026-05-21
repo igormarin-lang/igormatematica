@@ -95,7 +95,7 @@ npm run start
 1. Abra a URL do jogo.
 2. Clique em **Sou professor**.
 3. Faça login com o e-mail e senha do `.env`.
-4. Crie uma sessão e escolha 5, 10, 15 ou 20 rodadas.
+4. Crie uma sessão e escolha 5, 10, 15 ou 20 perguntas.
 5. Abra o **modo telão** e projete para a turma.
 6. Os alunos abrem a URL no celular.
 7. Eles digitam o código da sessão.

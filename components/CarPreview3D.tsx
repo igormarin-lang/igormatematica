@@ -15,7 +15,7 @@ export function CarPreview3D({
   celebration?: string | null;
   success?: boolean;
   playerName?: string | null;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "large";
 }) {
   return (
     <GameCarPreview3D

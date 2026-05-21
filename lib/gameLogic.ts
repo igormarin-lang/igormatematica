@@ -10,6 +10,10 @@ function ensureNumber(value: unknown, fallback: number) {
   return Number.isFinite(number) ? number : fallback;
 }
 
+function isMissingColumn(error: { message?: string } | null | undefined, column: string) {
+  return Boolean(error?.message?.includes(column) || error?.message?.includes("schema cache"));
+}
+
 async function uniqueSessionCode(supabase: ReturnType<typeof createServiceClient>) {
   for (let attempt = 0; attempt < 12; attempt += 1) {
     const code = createSessionCode();
@@ -35,13 +39,24 @@ export async function createSession(totalRounds: number) {
   const rounds = [5, 10, 15, 20].includes(totalRounds) ? totalRounds : 10;
   const code = await uniqueSessionCode(supabase);
 
-  const { data: session, error } = await supabase
+  let { data: session, error } = await supabase
     .from("sessions")
-    .insert({ code, total_rounds: rounds, status: "waiting", current_round: 0 })
+    .insert({ code, total_rounds: rounds, status: "waiting", current_round: 0, entries_locked: false })
     .select("*")
     .single<Session>();
 
+  if (isMissingColumn(error, "entries_locked")) {
+    const fallback = await supabase
+      .from("sessions")
+      .insert({ code, total_rounds: rounds, status: "waiting", current_round: 0 })
+      .select("*")
+      .single<Session>();
+    session = fallback.data;
+    error = fallback.error;
+  }
+
   if (error) throw error;
+  if (!session) throw new Error("Não foi possível criar a sessão.");
 
   const questions = generateQuestions(rounds).map((question) => ({
     ...question,
@@ -65,36 +80,43 @@ export async function getStateBySessionId(sessionId: string): Promise<GameState>
   const { data: session, error } = await supabase.from("sessions").select("*").eq("id", sessionId).single<Session>();
   if (error) throw error;
 
-  const [{ data: players, error: playerError }, { data: question, error: questionError }, { data: answers, error: answerError }] =
-    await Promise.all([
-      supabase.from("players").select("*").eq("session_id", session.id).order("joined_at").returns<Player[]>(),
-      session.current_round > 0
-        ? supabase
-            .from("questions")
-            .select("id, session_id, round_number, expression, difficulty")
-            .eq("session_id", session.id)
-            .eq("round_number", session.current_round)
-            .maybeSingle<Question>()
-        : Promise.resolve({ data: null, error: null }),
-      session.current_round > 0
-        ? supabase
-            .from("answers")
-            .select("*")
-            .eq("session_id", session.id)
-            .eq("round_number", session.current_round)
-            .returns<Answer[]>()
-        : Promise.resolve({ data: [], error: null })
-    ]);
+  const [
+    { data: players, error: playerError },
+    { data: question, error: questionError },
+    { data: answers, error: answerError },
+    { data: allAnswers, error: allAnswerError }
+  ] = await Promise.all([
+    supabase.from("players").select("*").eq("session_id", session.id).order("joined_at").returns<Player[]>(),
+    session.current_round > 0
+      ? supabase
+          .from("questions")
+          .select("id, session_id, round_number, expression, difficulty")
+          .eq("session_id", session.id)
+          .eq("round_number", session.current_round)
+          .maybeSingle<Question>()
+      : Promise.resolve({ data: null, error: null }),
+    session.current_round > 0
+      ? supabase
+          .from("answers")
+          .select("*")
+          .eq("session_id", session.id)
+          .eq("round_number", session.current_round)
+          .returns<Answer[]>()
+      : Promise.resolve({ data: [], error: null }),
+    supabase.from("answers").select("*").eq("session_id", session.id).returns<Answer[]>()
+  ]);
 
   if (playerError) throw playerError;
   if (questionError) throw questionError;
   if (answerError) throw answerError;
+  if (allAnswerError) throw allAnswerError;
 
   return buildGameState({
     session,
     players: players ?? [],
     question: question ?? null,
-    answers: answers ?? []
+    answers: answers ?? [],
+    allAnswers: allAnswers ?? []
   });
 }
 
@@ -118,7 +140,11 @@ export async function joinSession(
   const { data: session, error } = await supabase.from("sessions").select("*").eq("code", code).maybeSingle<Session>();
   if (error) throw error;
   if (!session) throw new Error("Código da sessão não encontrado.");
-  if (session.status !== "waiting") throw new Error("A corrida já começou.");
+  if (session.status === "finished") throw new Error("A corrida já terminou.");
+  if (session.status === "paused") throw new Error("A corrida está pausada pelo professor.");
+  if (session.status === "running" && session.entries_locked) {
+    throw new Error("A corrida já começou. Peça ao professor para liberar sua entrada.");
+  }
 
   let { data: player, error: playerError } = await supabase
     .from("players")
@@ -129,12 +155,13 @@ export async function joinSession(
       car_model: customization.carModel ?? "classic",
       car_sticker: customization.carSticker ?? "star",
       celebration_emoji: customization.celebrationEmoji ?? "🎉",
-      student_theme: customization.studentTheme ?? "if-green"
+      student_theme: customization.studentTheme ?? "if-green",
+      status: "active"
     })
     .select("*")
     .single<Player>();
 
-  if (playerError && (playerError.message.includes("car_color") || playerError.message.includes("schema cache"))) {
+  if (playerError && (isMissingColumn(playerError, "car_color") || isMissingColumn(playerError, "status"))) {
     const fallback = await supabase.from("players").insert({ session_id: session.id, name }).select("*").single<Player>();
     player = fallback.data;
     playerError = fallback.error;
@@ -189,19 +216,39 @@ export async function resetSession(rawCode: string) {
 
   await supabase.from("answers").delete().eq("session_id", state.session.id);
   await supabase.from("questions").delete().eq("session_id", state.session.id);
-  await supabase.from("players").update({ score: 0, position: 0 }).eq("session_id", state.session.id);
+  const resetPlayers = await supabase.from("players").update({ score: 0, position: 0, status: "active" }).eq("session_id", state.session.id);
+  if (isMissingColumn(resetPlayers.error, "status")) {
+    await supabase.from("players").update({ score: 0, position: 0 }).eq("session_id", state.session.id);
+  } else if (resetPlayers.error) {
+    throw resetPlayers.error;
+  }
   await supabase.from("questions").insert(questions);
 
-  const { error } = await supabase
+  let { error } = await supabase
     .from("sessions")
     .update({
       status: "waiting",
       current_round: 0,
       winner_player_id: null,
       question_started_at: null,
-      question_ends_at: null
+      question_ends_at: null,
+      entries_locked: false
     })
     .eq("id", state.session.id);
+
+  if (isMissingColumn(error, "entries_locked")) {
+    const fallback = await supabase
+      .from("sessions")
+      .update({
+        status: "waiting",
+        current_round: 0,
+        winner_player_id: null,
+        question_started_at: null,
+        question_ends_at: null
+      })
+      .eq("id", state.session.id);
+    error = fallback.error;
+  }
 
   if (error) throw error;
   return getStateBySessionId(state.session.id);
@@ -238,7 +285,8 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
 
   const player = state.players.find((item) => item.id === playerId);
   if (!player) throw new Error("Aluno não encontrado nesta sessão.");
-  if (player.answered_current_round) throw new Error("Você já respondeu esta rodada.");
+  if ((player.status ?? "active") !== "active") throw new Error("Você foi removido da corrida pelo professor.");
+  if (player.answered_current_round) throw new Error("Você já respondeu esta pergunta.");
 
   const { data: privateQuestion, error: questionError } = await supabase
     .from("questions")
@@ -252,7 +300,7 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
   const secondsLeft = Math.max(0, Math.ceil((new Date(state.session.question_ends_at ?? 0).getTime() - Date.now()) / 1000));
   const bonus = isCorrect && secondsLeft >= 14 ? 1 : 0;
   const points = isCorrect ? 1 + bonus : 0;
-  const nextPosition = Math.min(state.session.total_rounds, player.position + points);
+  const nextPosition = Math.min(state.session.total_rounds, player.position + (isCorrect ? 1 : 0));
   const nextScore = player.score + points;
 
   const { error: answerError } = await supabase.from("answers").insert({
@@ -267,21 +315,12 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
 
   if (answerError) throw answerError;
 
-  if (points > 0) {
+  if (isCorrect || points > 0) {
     const { error: playerError } = await supabase
       .from("players")
       .update({ score: nextScore, position: nextPosition })
       .eq("id", player.id);
     if (playerError) throw playerError;
-  }
-
-  if (nextPosition >= state.session.total_rounds) {
-    const { error } = await supabase
-      .from("sessions")
-      .update({ status: "finished", winner_player_id: player.id, question_ends_at: null })
-      .eq("id", state.session.id);
-    if (error) throw error;
-    return { correct: isCorrect, points, correctAnswer: privateQuestion.correct_answer, state: await getStateBySessionId(state.session.id) };
   }
 
   const updatedState = await getStateBySessionId(state.session.id);
@@ -322,4 +361,72 @@ export async function autoAdvanceIfNeeded(session: Session) {
   if (session.status !== "running" || !session.question_ends_at) return;
   if (new Date(session.question_ends_at).getTime() > Date.now()) return;
   await advanceRound(session.code);
+}
+
+export async function updatePlayerCustomization(
+  rawCode: string,
+  playerId: string,
+  customization: {
+    carColor?: string;
+    carModel?: string;
+    carSticker?: string;
+    celebrationEmoji?: string;
+    studentTheme?: string;
+  }
+) {
+  const supabase = createServiceClient();
+  const state = await getStateByCode(rawCode);
+  const player = [...state.players, ...state.removedPlayers].find((item) => item.id === playerId);
+
+  if (!player) throw new Error("Aluno não encontrado nesta sessão.");
+  if ((player.status ?? "active") !== "active") throw new Error("Você foi removido da corrida pelo professor.");
+  if (state.session.status !== "waiting") throw new Error("A personalização fica bloqueada depois da largada.");
+
+  const { error } = await supabase
+    .from("players")
+    .update({
+      car_color: customization.carColor ?? player.car_color ?? "#2f9e41",
+      car_model: customization.carModel ?? player.car_model ?? "classic",
+      car_sticker: customization.carSticker ?? player.car_sticker ?? "star",
+      celebration_emoji: customization.celebrationEmoji ?? player.celebration_emoji ?? "🎉",
+      student_theme: customization.studentTheme ?? player.student_theme ?? "if-green"
+    })
+    .eq("id", player.id)
+    .eq("session_id", state.session.id);
+
+  if (error) throw error;
+  return getStateBySessionId(state.session.id);
+}
+
+export async function setEntriesLocked(rawCode: string, locked: boolean) {
+  const supabase = createServiceClient();
+  const state = await getStateByCode(rawCode);
+  const { error } = await supabase.from("sessions").update({ entries_locked: locked }).eq("id", state.session.id);
+  if (error) throw error;
+  return getStateBySessionId(state.session.id);
+}
+
+export async function kickPlayer(rawCode: string, playerId: string) {
+  const supabase = createServiceClient();
+  const state = await getStateByCode(rawCode);
+  const { error } = await supabase
+    .from("players")
+    .update({ status: "kicked" })
+    .eq("id", playerId)
+    .eq("session_id", state.session.id);
+  if (error) throw error;
+  return getStateBySessionId(state.session.id);
+}
+
+export async function resetPlayerScore(rawCode: string, playerId: string) {
+  const supabase = createServiceClient();
+  const state = await getStateByCode(rawCode);
+  await supabase.from("answers").delete().eq("session_id", state.session.id).eq("player_id", playerId);
+  const { error } = await supabase
+    .from("players")
+    .update({ score: 0, position: 0 })
+    .eq("id", playerId)
+    .eq("session_id", state.session.id);
+  if (error) throw error;
+  return getStateBySessionId(state.session.id);
 }

@@ -4,7 +4,6 @@ import { CarPreview3D } from "@/components/CarPreview3D";
 import { GameButton } from "@/components/GameButton";
 import { GameInput } from "@/components/GameInput";
 import { GamePanel } from "@/components/GamePanel";
-import { StudentHeroCar } from "@/components/StudentHeroCar";
 import { carColors, carModels, celebrations, stickers, studentThemes } from "@/lib/studentCustomization";
 
 export type StudentCustomization = {
@@ -21,13 +20,23 @@ export function StudentCustomizer({
   onChange,
   onSubmit,
   loading,
-  message
+  message,
+  title = "Monte seu carro",
+  subtitle = "Escolha seu estilo antes de entrar na corrida.",
+  submitLabel = "Entrar na corrida",
+  loadingLabel = "Entrando...",
+  lockName = false
 }: {
   value: StudentCustomization;
   onChange: (value: StudentCustomization) => void;
   onSubmit: () => void;
   loading: boolean;
   message?: string;
+  title?: string;
+  subtitle?: string;
+  submitLabel?: string;
+  loadingLabel?: string;
+  lockName?: boolean;
 }) {
   const set = (patch: Partial<StudentCustomization>) => onChange({ ...value, ...patch });
 
@@ -35,18 +44,16 @@ export function StudentCustomizer({
     <div className="grid w-full max-w-6xl gap-5 lg:grid-cols-[0.9fr_1.1fr]">
       <aside className="rounded-[2.4rem] border-2 border-white/15 bg-green-950/72 p-5 text-center text-white shadow-soft backdrop-blur sm:p-8">
         <p className="text-sm font-black uppercase text-flagYellow">Garagem do aluno</p>
-        <h1 className="game-title mt-2 text-5xl font-black leading-none sm:text-6xl">Monte seu carro</h1>
-        <p className="mx-auto mt-4 max-w-md font-semibold text-white/75">Escolha seu estilo antes de entrar na corrida.</p>
-        <div className="mt-7 lg:hidden">
-          <StudentHeroCar color={value.carColor} model={value.carModel} sticker={value.carSticker} editable />
-        </div>
-        <div className="mt-6 hidden lg:block">
+        <h1 className="game-title mt-2 text-5xl font-black leading-none sm:text-6xl">{title}</h1>
+        <p className="mx-auto mt-4 max-w-md font-semibold text-white/75">{subtitle}</p>
+        <div className="mt-6">
           <CarPreview3D
             color={value.carColor}
             model={value.carModel}
             sticker={value.carSticker}
             celebration={value.celebrationEmoji}
             playerName={value.name || "Seu carrinho"}
+            size="md"
           />
         </div>
       </aside>
@@ -60,6 +67,7 @@ export function StudentCustomizer({
             id="student-name"
             value={value.name}
             onChange={(event) => set({ name: event.target.value })}
+            disabled={lockName}
             maxLength={24}
             placeholder="Ex.: Ana"
             className="mt-2 text-xl normal-case tracking-normal"
@@ -161,7 +169,7 @@ export function StudentCustomizer({
         </div>
 
         <GameButton className="min-h-16 w-full text-lg" type="button" icon="🏁" onClick={onSubmit} disabled={loading || value.name.trim().length < 2}>
-          {loading ? "Entrando..." : "Entrar na corrida"}
+          {loading ? loadingLabel : submitLabel}
         </GameButton>
         {message ? <p className="rounded-2xl bg-red-50 p-3 font-bold text-raceRed">{message}</p> : null}
       </GamePanel>

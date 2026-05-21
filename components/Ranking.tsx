@@ -15,8 +15,9 @@ export function Ranking({ players, compact = false }: { players: PlayerWithAnswe
           <span className="min-w-0 truncate font-black">
             {index + 1}. {player.name}
           </span>
-          <span className={`${compact ? "text-sm" : "text-base"} shrink-0 font-extrabold text-raceBlue`}>
+          <span className={`${compact ? "text-sm" : "text-base"} shrink-0 text-right font-extrabold text-raceBlue`}>
             {player.score} pts
+            <span className="block text-[11px] text-slate-500">{player.correct_answers} acertos</span>
           </span>
         </li>
       ))}

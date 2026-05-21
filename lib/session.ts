@@ -15,7 +15,7 @@ export function sanitizePlayerName(name: string) {
 }
 
 export function sortPlayers(players: PlayerWithAnswered[]) {
-  return [...players].sort((a, b) => b.position - a.position || b.score - a.score || a.name.localeCompare(b.name));
+  return [...players].sort((a, b) => b.score - a.score || b.correct_answers - a.correct_answers || a.name.localeCompare(b.name));
 }
 
 export function buildGameState(args: {
@@ -23,12 +23,25 @@ export function buildGameState(args: {
   players: Player[];
   question: Question | null;
   answers: Answer[];
+  allAnswers?: Answer[];
 }): GameState {
   const answeredPlayerIds = new Set(args.answers.map((answer) => answer.player_id));
-  const players = args.players.map((player) => ({
+  const correctByPlayer = new Map<string, number>();
+  for (const answer of args.allAnswers ?? args.answers) {
+    if (answer.is_correct) {
+      correctByPlayer.set(answer.player_id, (correctByPlayer.get(answer.player_id) ?? 0) + 1);
+    }
+  }
+  const allPlayers = args.players.map((player) => ({
     ...player,
-    answered_current_round: answeredPlayerIds.has(player.id)
+    status: player.status ?? "active",
+    answered_current_round: answeredPlayerIds.has(player.id),
+    correct_answers: correctByPlayer.get(player.id) ?? 0
   }));
+  const players = allPlayers.filter((player) => (player.status ?? "active") === "active");
+  const removedPlayers = allPlayers.filter((player) => (player.status ?? "active") !== "active");
+  const activePlayerIds = new Set(players.map((player) => player.id));
+  const activeAnsweredCount = args.answers.filter((answer) => activePlayerIds.has(answer.player_id)).length;
   const ranking = sortPlayers(players);
   const winner = args.session.winner_player_id
     ? players.find((player) => player.id === args.session.winner_player_id) ?? null
@@ -39,6 +52,7 @@ export function buildGameState(args: {
   return {
     session: args.session,
     players,
+    removedPlayers,
     question: args.question
       ? {
           id: args.question.id,
@@ -49,7 +63,7 @@ export function buildGameState(args: {
         }
       : null,
     ranking,
-    answeredCount: args.answers.length,
+    answeredCount: activeAnsweredCount,
     winner
   };
 }

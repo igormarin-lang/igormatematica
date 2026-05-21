@@ -96,7 +96,7 @@ export default function HomePage() {
             <div className="mb-5 flex items-center justify-between rounded-[1.5rem] bg-white/10 p-4 text-white ring-1 ring-white/10">
               <div>
                 <p className="text-xs font-black uppercase text-flagYellow">Placar da turma</p>
-                <strong className="text-2xl font-black">Rodada 3 de 10</strong>
+                <strong className="text-2xl font-black">Pergunta 3 de 10</strong>
               </div>
               <span className="grid h-16 w-16 place-items-center rounded-2xl bg-flagYellow text-xl font-black text-slate-950">18s</span>
             </div>

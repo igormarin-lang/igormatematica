@@ -9,6 +9,7 @@ create table if not exists public.sessions (
   question_started_at timestamptz,
   question_ends_at timestamptz,
   winner_player_id uuid,
+  entries_locked boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -23,6 +24,7 @@ create table if not exists public.players (
   car_sticker text default 'star',
   celebration_emoji text default '🎉',
   student_theme text default 'if-green',
+  status text not null default 'active',
   joined_at timestamptz not null default now()
 );
 
