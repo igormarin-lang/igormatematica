@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IFSP Game Mobile UI — Corrida das Expressões</title>
+  <style>
+    :root{--if-green:#2f9e41;--if-red:#cd191e;--green-950:#03170a;--green-900:#063b1a;--green-800:#0b5a28;--green-100:#dcfce7;--yellow:#ffd35a;--blue:#2563eb;--purple:#7c3aed;--orange:#f97316;--pink:#ec4899;--cyan:#06b6d4}
+    *{box-sizing:border-box} body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:#03170a;color:white} .wrap{max-width:1180px;margin:auto;padding:28px}
+    .hero{position:relative;overflow:hidden;border-radius:34px;padding:28px;background:radial-gradient(circle at 50% 8%,rgba(99,215,122,.38),transparent 30%),linear-gradient(180deg,#0b5a28,#03170a);border:2px solid rgba(255,255,255,.16)}
+    .hero:before{content:"+ - × ÷ = 1 2 3 4 5 ( )";position:absolute;inset:0;color:rgba(255,255,255,.06);font-size:82px;font-weight:900;line-height:1.25;transform:rotate(-10deg) scale(1.1)}
+    .content{position:relative;z-index:1}.badge{display:inline-flex;border-radius:999px;background:rgba(255,255,255,.12);padding:8px 12px;font-size:12px;font-weight:900;text-transform:uppercase}
+    h1{font-size:clamp(52px,9vw,104px);line-height:.86;margin:24px 0 10px;color:var(--yellow);text-shadow:0 4px 0 #063b1a,0 8px 0 rgba(0,0,0,.34);font-weight:900}
+    .grid{display:grid;gap:22px}.cols{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.panel{border:4px solid #062e16;border-radius:28px;background:white;color:#062e16;padding:22px;box-shadow:0 8px 0 rgba(0,0,0,.22)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:58px;border:4px solid #062e16;border-radius:22px;background:var(--yellow);color:#062e16;padding:12px 22px;font-weight:900;text-transform:uppercase;box-shadow:0 7px 0 rgba(0,0,0,.28)}
+    .input{height:70px;width:100%;border:4px solid #062e16;border-radius:22px;text-align:center;font-size:34px;font-weight:900;color:#062e16}
+    .car-circle{width:210px;height:210px;border-radius:50%;border:7px solid #062e16;background:linear-gradient(135deg,#dcfce7,#63d77a);display:grid;place-items:center;box-shadow:0 0 0 6px white,0 14px 0 rgba(0,0,0,.24)}
+    .car{position:relative;width:140px;height:78px}.car b{position:absolute;left:8px;right:8px;bottom:16px;height:46px;border:5px solid #062e16;border-radius:42px 48px 18px 18px;background:var(--if-green)}.car i{position:absolute;left:48px;top:0;width:54px;height:42px;border:5px solid #062e16;border-radius:30px 30px 12px 12px;background:white}.car span{position:absolute;bottom:0;width:28px;height:28px;border-radius:50%;background:#111;border:7px solid #ddd}.car .w1{left:24px}.car .w2{right:24px}
+    .track{display:grid;gap:10px}.lane{position:relative;height:76px;border-radius:24px;background:#485363;overflow:hidden;border:2px solid rgba(255,255,255,.2)}.lane:after{content:"";position:absolute;right:0;top:0;bottom:0;width:46px;background:repeating-conic-gradient(#fff 0 25%,#111 0 50%) 0/20px 20px}
+    .rules li{margin:8px 0}.swatches{display:flex;flex-wrap:wrap;gap:10px}.swatches span{width:42px;height:42px;border-radius:14px;border:3px solid #062e16}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="content grid cols">
+        <div>
+          <span class="badge">IFSP Game Mobile UI</span>
+          <h1>Corrida das Expressões</h1>
+          <p><strong>Direção:</strong> jogo educativo mobile-first com base verde IFSP, botões grandes, carrinho/avatar central, pista 2D e feedback positivo.</p>
+          <button class="btn">🏁 Jogar</button>
+        </div>
+        <div class="car-circle"><div class="car"><b></b><i></i><span class="w1"></span><span class="w2"></span></div></div>
+      </div>
+    </section>
+    <section class="grid cols" style="margin-top:24px">
+      <article class="panel"><h2>Paleta IF</h2><p>Verde #2f9e41, vermelho #cd191e, preto #000000, branco #ffffff. Open Sans como fonte principal.</p><div class="swatches"><span style="background:#2f9e41"></span><span style="background:#cd191e"></span><span style="background:#000"></span><span style="background:#fff"></span></div></article>
+      <article class="panel"><h2>Paleta game</h2><p>Amarelo para ação, azul/roxo/laranja/rosa/ciano apenas para personalização e energia visual.</p><div class="swatches"><span style="background:#ffd35a"></span><span style="background:#2563eb"></span><span style="background:#7c3aed"></span><span style="background:#f97316"></span><span style="background:#ec4899"></span><span style="background:#06b6d4"></span></div></article>
+      <article class="panel"><h2>Componentes</h2><input class="input" value="AB12" readonly><p><button class="btn">➜ Responder</button></p></article>
+      <article class="panel"><h2>Pista 2D</h2><div class="track"><div class="lane"></div><div class="lane"></div><div class="lane"></div></div></article>
+    </section>
+    <section class="panel" style="margin-top:24px">
+      <h2>Regras de marca</h2>
+      <ul class="rules">
+        <li>Não recriar logo IF manualmente como marca oficial.</li>
+        <li>Não distorcer, rotacionar, alterar cores ou aplicar efeitos na marca.</li>
+        <li>Não usar a marca como marca d'água; módulos quadrados podem ser inspiração abstrata.</li>
+        <li>Em telas de jogo, manter verde IF como base e cores vivas apenas em elementos de jogo.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

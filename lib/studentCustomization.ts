@@ -8,7 +8,7 @@ export const carColors = [
   { name: "Laranja", value: "#f97316" },
   { name: "Rosa", value: "#ec4899" },
   { name: "Ciano", value: "#06b6d4" },
-  { name: "Vermelho", value: "#cd191e" }
+  { name: "Vermelho IF", value: "#cd191e" }
 ];
 
 export const carModels: Array<{ name: string; value: CarModel }> = [
@@ -16,7 +16,7 @@ export const carModels: Array<{ name: string; value: CarModel }> = [
   { name: "Fórmula", value: "formula" },
   { name: "Kart", value: "kart" },
   { name: "Futurista", value: "future" },
-  { name: "Mini turbo", value: "mini" }
+  { name: "Turbo", value: "mini" }
 ];
 
 export const stickers = [
@@ -25,19 +25,19 @@ export const stickers = [
   { name: "Foguete", value: "rocket", label: "🚀" },
   { name: "Troféu", value: "trophy", label: "🏆" },
   { name: "Bandeira", value: "flag", label: "🏁" },
-  { name: "Número 1", value: "one", label: "1" },
+  { name: "Número 1", value: "one", label: "1º" },
   { name: "IF", value: "if", label: "IF" },
-  { name: "Soma +", value: "plus", label: "+" }
+  { name: "Matemática", value: "plus", label: "➕" }
 ];
 
 export const celebrations = ["🎉", "🚀", "🏆", "🔥", "⭐", "💚"];
 
 export const studentThemes: Array<{ name: string; value: StudentTheme }> = [
   { name: "IF Verde", value: "if-green" },
-  { name: "Neon corrida", value: "neon" },
-  { name: "Sala de aula", value: "classroom" },
   { name: "Arcade", value: "arcade" },
-  { name: "Minimal", value: "minimal" }
+  { name: "Neon", value: "neon" },
+  { name: "Sala de aula", value: "classroom" },
+  { name: "Corrida", value: "minimal" }
 ];
 
 export function stickerLabel(value?: string | null) {
@@ -59,4 +59,3 @@ export function safeCelebration(value?: string | null) {
 export function safeStudentTheme(value?: string | null): StudentTheme {
   return studentThemes.some((item) => item.value === value) ? (value as StudentTheme) : "if-green";
 }
-

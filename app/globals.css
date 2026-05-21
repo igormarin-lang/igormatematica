@@ -64,6 +64,51 @@ select {
   isolation: isolate;
 }
 
+.game-mobile-bg {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 9%, rgba(99, 215, 122, 0.42), transparent 28%),
+    radial-gradient(circle at 10% 84%, rgba(250, 204, 21, 0.2), transparent 26%),
+    radial-gradient(circle at 92% 82%, rgba(6, 182, 212, 0.13), transparent 24%),
+    linear-gradient(180deg, #0b5a28 0%, #063b1a 54%, #03170a 100%);
+}
+
+.game-mobile-bg::before {
+  content: "+  -  ×  ÷  =  1  2  3  4  5  ( )";
+  position: fixed;
+  inset: -4rem;
+  z-index: -2;
+  color: rgba(255, 255, 255, 0.065);
+  font-size: clamp(3.8rem, 13vw, 9rem);
+  font-weight: 900;
+  letter-spacing: 0.45rem;
+  line-height: 1.35;
+  transform: rotate(-10deg);
+  pointer-events: none;
+}
+
+.game-mobile-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black, transparent 82%);
+  pointer-events: none;
+}
+
+.game-title {
+  color: var(--game-yellow);
+  text-shadow:
+    0 4px 0 #063b1a,
+    0 8px 0 rgba(0, 0, 0, 0.34);
+}
+
 .academic-bg::before {
   content: "+  −  ×  ÷  ( )  12  8  3";
   position: fixed;
