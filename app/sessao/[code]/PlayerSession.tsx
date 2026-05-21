@@ -143,7 +143,14 @@ export function PlayerSession({ code }: { code: string }) {
             <StudentHeroCar color={me.car_color} model={me.car_model} sticker={me.car_sticker} compact />
           </div>
           <div className="hidden lg:block">
-            <CarPreview3D color={me.car_color} model={me.car_model} sticker={me.car_sticker} celebration={me.celebration_emoji} success={message.type === "correct"} />
+            <CarPreview3D
+              color={me.car_color}
+              model={me.car_model}
+              sticker={me.car_sticker}
+              celebration={me.celebration_emoji}
+              success={message.type === "correct"}
+              playerName={me.name}
+            />
           </div>
 
           <div className="rounded-[2rem] border-2 border-white/15 bg-green-950/82 p-4 text-white shadow-soft sm:p-5">

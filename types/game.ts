@@ -1,6 +1,6 @@
 export type GameStatus = "waiting" | "running" | "paused" | "finished";
 export type Difficulty = "facil" | "medio" | "dificil";
-export type CarModel = "classic" | "formula" | "kart" | "future" | "mini";
+export type CarModel = "classic" | "formula" | "kart" | "future" | "mini" | "futuristic" | "turbo";
 export type StudentTheme = "if-green" | "neon" | "classroom" | "arcade" | "minimal";
 
 export type Session = {

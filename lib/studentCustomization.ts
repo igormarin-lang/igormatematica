@@ -15,8 +15,8 @@ export const carModels: Array<{ name: string; value: CarModel }> = [
   { name: "Clássico", value: "classic" },
   { name: "Fórmula", value: "formula" },
   { name: "Kart", value: "kart" },
-  { name: "Futurista", value: "future" },
-  { name: "Turbo", value: "mini" }
+  { name: "Futurista", value: "futuristic" },
+  { name: "Turbo", value: "turbo" }
 ];
 
 export const stickers = [
@@ -49,6 +49,8 @@ export function safeCarColor(value?: string | null) {
 }
 
 export function safeCarModel(value?: string | null): CarModel {
+  if (value === "future") return "futuristic";
+  if (value === "mini") return "turbo";
   return carModels.some((item) => item.value === value) ? (value as CarModel) : "classic";
 }
 

@@ -109,6 +109,47 @@ select {
     0 8px 0 rgba(0, 0, 0, 0.34);
 }
 
+@keyframes car-idle {
+  0%, 100% {
+    transform: translateY(0) rotate(-0.5deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(0.5deg);
+  }
+}
+
+@keyframes car-boost {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-14px) scale(1.035) rotate(-1deg);
+  }
+  70% {
+    transform: translateY(2px) scale(1.01);
+  }
+}
+
+@keyframes wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-car-idle {
+  animation: car-idle 3.2s ease-in-out infinite;
+}
+
+.animate-car-boost {
+  animation: car-boost 0.72s ease-out both, car-idle 3.2s ease-in-out 0.72s infinite;
+}
+
+.animate-wheel-spin {
+  animation: wheel-spin 0.7s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .academic-bg::before {
   content: "+  −  ×  ÷  ( )  12  8  3";
   position: fixed;

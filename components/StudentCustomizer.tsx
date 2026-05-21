@@ -41,7 +41,13 @@ export function StudentCustomizer({
           <StudentHeroCar color={value.carColor} model={value.carModel} sticker={value.carSticker} editable />
         </div>
         <div className="mt-6 hidden lg:block">
-          <CarPreview3D color={value.carColor} model={value.carModel} sticker={value.carSticker} celebration={value.celebrationEmoji} />
+          <CarPreview3D
+            color={value.carColor}
+            model={value.carModel}
+            sticker={value.carSticker}
+            celebration={value.celebrationEmoji}
+            playerName={value.name || "Seu carrinho"}
+          />
         </div>
       </aside>
 
