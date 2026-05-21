@@ -6,7 +6,14 @@ export function jsonOk(data: Record<string, unknown> = {}) {
 }
 
 export function jsonError(error: unknown, status = 400) {
-  const message = error instanceof Error ? error.message : "Algo deu errado.";
+  let message = "Algo deu errado.";
+
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (error && typeof error === "object" && "message" in error) {
+    message = String((error as { message?: unknown }).message);
+  }
+
   return NextResponse.json({ ok: false, message }, { status });
 }
 
