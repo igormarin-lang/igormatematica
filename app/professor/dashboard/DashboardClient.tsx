@@ -48,7 +48,9 @@ export function DashboardClient() {
     }
 
     setCode(data.session.code);
-    await refresh();
+    if (data.state) {
+      setState(data.state);
+    }
   }
 
   async function sessionAction(action: "start" | "pause" | "reset" | "finish" | "advance") {

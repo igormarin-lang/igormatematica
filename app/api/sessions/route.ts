@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { createSession } from "@/lib/gameLogic";
+import { createSession, getStateBySessionId } from "@/lib/gameLogic";
 import { jsonError, jsonOk, requireTeacherResponse } from "@/lib/api";
 
 export async function POST(request: NextRequest) {
@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as { totalRounds?: number };
     const session = await createSession(Number(body.totalRounds ?? 10));
-    return jsonOk({ session });
+    const state = await getStateBySessionId(session.id);
+    return jsonOk({ session, state });
   } catch (error) {
     return jsonError(error);
   }
