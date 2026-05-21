@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
+import { IFSPLogo } from "@/components/IFSPLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,9 +35,10 @@ export default function LoginPage() {
 
   return (
     <main className="academic-bg grid min-h-screen place-items-center px-5 py-10">
-      <section className="grid w-full max-w-5xl overflow-hidden rounded-[2.5rem] bg-white shadow-soft ring-1 ring-slate-200 lg:grid-cols-[0.95fr_1.05fr]">
+      <section className="grid w-full max-w-5xl overflow-hidden rounded-[2.5rem] bg-white shadow-soft ring-1 ring-white/10 lg:grid-cols-[0.95fr_1.05fr]">
       <div className="speed-lines flex flex-col justify-between p-8 text-white sm:p-10">
         <div>
+          <IFSPLogo compact className="mb-8 w-max" />
           <p className="text-sm font-black uppercase text-flagYellow">Área do professor</p>
           <h1 className="mt-3 text-5xl font-black leading-none">Painel da corrida</h1>
           <p className="mt-4 max-w-md font-semibold text-white/75">Crie a sessão, projete o telão e acompanhe a turma em tempo real.</p>

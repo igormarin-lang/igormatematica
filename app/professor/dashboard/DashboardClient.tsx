@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { GameStatusBadge } from "@/components/GameStatusBadge";
+import { IFSPLogo } from "@/components/IFSPLogo";
 import { PlayerCard } from "@/components/PlayerCard";
 import { QuestionCard } from "@/components/QuestionCard";
 import { RaceTrack } from "@/components/RaceTrack";
@@ -77,10 +78,13 @@ export function DashboardClient() {
 
   return (
     <main className="academic-bg min-h-screen px-4 py-4 sm:px-6 sm:py-6">
-      <header className="sticky top-3 z-20 mx-auto mb-5 flex w-full max-w-[1600px] items-center justify-between gap-3 rounded-[2rem] bg-white/90 p-4 shadow-sm ring-1 ring-slate-200 backdrop-blur">
-        <div>
-          <p className="text-sm font-black uppercase text-ifGreen">Painel do professor • IFSP / Trabalho acadêmico</p>
-          <h1 className="text-2xl font-black leading-tight text-slate-950 sm:text-3xl">Corrida das Expressões</h1>
+      <header className="sticky top-3 z-20 mx-auto mb-5 flex w-full max-w-[1600px] items-center justify-between gap-3 rounded-[2rem] bg-green-950/90 p-4 shadow-sm ring-1 ring-white/10 backdrop-blur">
+        <div className="flex min-w-0 items-center gap-4">
+          <IFSPLogo compact className="hidden shrink-0 sm:inline-flex" />
+          <div className="min-w-0">
+          <p className="text-sm font-black uppercase text-flagYellow">Painel do professor • IFSP / Trabalho acadêmico</p>
+          <h1 className="text-2xl font-black leading-tight text-white sm:text-3xl">Corrida das Expressões</h1>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <ButtonLink href="/sobre" variant="quiet" className="hidden sm:inline-flex">

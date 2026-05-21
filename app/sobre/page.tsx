@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/Button";
+import { IFSPLogo } from "@/components/IFSPLogo";
 
 export default function AboutPage() {
   return (
@@ -6,6 +7,7 @@ export default function AboutPage() {
       <section className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-[1400px] overflow-hidden rounded-[2.5rem] bg-white/80 shadow-soft ring-1 ring-slate-200 backdrop-blur lg:grid-cols-[0.8fr_1.2fr]">
         <div className="speed-lines flex flex-col justify-between p-8 text-white sm:p-10">
           <div>
+            <IFSPLogo compact className="mb-8 w-max" />
             <p className="text-sm font-black uppercase text-flagYellow">IFSP / Trabalho acadêmico</p>
             <h1 className="mt-3 text-5xl font-black leading-none sm:text-6xl">Sobre o projeto</h1>
             <p className="mt-5 max-w-md font-semibold leading-7 text-white/75">

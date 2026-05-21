@@ -1,6 +1,7 @@
 "use client";
 
 import { QuestionCard } from "@/components/QuestionCard";
+import { IFSPLogo } from "@/components/IFSPLogo";
 import { RaceTrack } from "@/components/RaceTrack";
 import { Ranking } from "@/components/Ranking";
 import { SessionCode } from "@/components/SessionCode";
@@ -16,9 +17,12 @@ export function BigScreenClient({ code }: { code: string }) {
       <div className="mx-auto grid h-full min-h-[calc(100vh-2rem)] max-w-[1800px] gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <section className="flex min-h-0 flex-col gap-5">
           <header className="grid gap-4 rounded-[2rem] bg-white/10 p-4 ring-1 ring-white/10 backdrop-blur sm:p-5 lg:grid-cols-[1fr_auto_auto] lg:items-center">
-            <div>
+            <div className="flex min-w-0 items-center gap-4">
+              <IFSPLogo variant="white" compact className="hidden shrink-0 sm:inline-flex" />
+              <div className="min-w-0">
               <p className="text-sm font-black uppercase text-flagYellow">Corrida das Expressões</p>
-              <h1 className="text-3xl font-black leading-tight sm:text-5xl 2xl:text-6xl">Placar da turma</h1>
+              <h1 className="truncate text-3xl font-black leading-tight sm:text-5xl 2xl:text-6xl">Placar da turma</h1>
+              </div>
             </div>
             <div className="bg-white text-slate-950">
               <SessionCode code={code} />
