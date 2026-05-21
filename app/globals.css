@@ -15,8 +15,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    linear-gradient(135deg, rgba(230, 63, 63, 0.12), transparent 24rem),
-    linear-gradient(315deg, rgba(18, 91, 127, 0.14), transparent 26rem),
+    radial-gradient(circle at 12% 15%, rgba(22, 131, 58, 0.15), transparent 22rem),
+    radial-gradient(circle at 88% 8%, rgba(230, 63, 63, 0.14), transparent 22rem),
+    linear-gradient(135deg, rgba(18, 91, 127, 0.12), transparent 28rem),
+    linear-gradient(315deg, rgba(255, 211, 90, 0.18), transparent 26rem),
     #f5f7fb;
   color: #172033;
   font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
@@ -26,6 +28,43 @@ button,
 input,
 select {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 4px solid rgba(255, 211, 90, 0.95);
+  outline-offset: 3px;
+}
+
+.academic-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.academic-bg::before {
+  content: "+  −  ×  ÷  ( )  12  8  3";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  color: rgba(18, 91, 127, 0.08);
+  font-size: clamp(3rem, 9vw, 9rem);
+  font-weight: 900;
+  letter-spacing: 1rem;
+  line-height: 1.4;
+  transform: rotate(-12deg) translate(-6%, 8%);
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+.academic-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(115deg, transparent 0 20%, rgba(255, 255, 255, 0.42) 20% 21%, transparent 21% 44%, rgba(255, 255, 255, 0.35) 44% 45%, transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(22, 131, 58, 0.08), transparent 18rem);
+  pointer-events: none;
 }
 
 .checkered {
@@ -49,4 +88,20 @@ select {
   background:
     linear-gradient(120deg, transparent 0 18%, rgba(255,255,255,0.16) 18% 20%, transparent 20% 44%, rgba(255,255,255,0.12) 44% 46%, transparent 46%),
     #202733;
+}
+
+.scoreboard-bg {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(37, 168, 111, 0.2), transparent 24rem),
+    radial-gradient(circle at 85% 12%, rgba(230, 63, 63, 0.16), transparent 20rem),
+    linear-gradient(135deg, #0f172a, #172033 52%, #0b1120);
+}
+
+.confetti {
+  background-image:
+    radial-gradient(circle, #ffd35a 0 3px, transparent 4px),
+    radial-gradient(circle, #e63f3f 0 3px, transparent 4px),
+    radial-gradient(circle, #25a86f 0 3px, transparent 4px);
+  background-position: 8% 24%, 42% 14%, 72% 28%;
+  background-size: 120px 120px;
 }

@@ -21,7 +21,12 @@ export function Timer({ endsAt, fallback = 20 }: { endsAt: string | null; fallba
   }, [endsAt, fallback]);
 
   return (
-    <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-flagYellow text-xl font-black text-slate-900 shadow-soft ring-4 ring-white sm:h-20 sm:w-20 sm:rounded-full sm:text-2xl">
+    <div
+      className={`grid h-16 w-16 shrink-0 place-items-center rounded-2xl text-xl font-black shadow-soft ring-4 ring-white transition-colors sm:h-20 sm:w-20 sm:rounded-full sm:text-2xl ${
+        seconds <= 5 ? "bg-raceRed text-white" : "bg-flagYellow text-slate-900"
+      }`}
+      aria-label={`Tempo restante: ${seconds} segundos`}
+    >
       {seconds}s
     </div>
   );

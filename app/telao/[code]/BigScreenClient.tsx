@@ -9,35 +9,51 @@ import { useGameState } from "@/lib/useGameState";
 
 export function BigScreenClient({ code }: { code: string }) {
   const { state, error } = useGameState(code);
+  const podium = state?.ranking.slice(0, 3) ?? [];
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-4 text-white sm:px-6 sm:py-6">
-      <div className="mx-auto grid max-w-7xl gap-5 xl:grid-cols-[1fr_340px]">
-        <section className="space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] bg-white/10 p-4 ring-1 ring-white/10 sm:p-5">
+    <main className="scoreboard-bg min-h-screen overflow-hidden px-4 py-4 text-white sm:px-6 sm:py-6">
+      <div className="mx-auto grid h-full min-h-[calc(100vh-2rem)] max-w-[1800px] gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="flex min-h-0 flex-col gap-5">
+          <header className="grid gap-4 rounded-[2rem] bg-white/10 p-4 ring-1 ring-white/10 backdrop-blur sm:p-5 lg:grid-cols-[1fr_auto_auto] lg:items-center">
             <div>
               <p className="text-sm font-black uppercase text-flagYellow">Corrida das Expressões</p>
-              <h1 className="text-3xl font-black leading-tight sm:text-5xl">Telão da turma</h1>
+              <h1 className="text-3xl font-black leading-tight sm:text-5xl 2xl:text-6xl">Placar da turma</h1>
             </div>
-            <div className="w-full bg-white text-slate-950 sm:w-auto">
+            <div className="bg-white text-slate-950">
               <SessionCode code={code} />
             </div>
-          </div>
+            <div className="flex items-center justify-between gap-4 rounded-[1.75rem] bg-white/10 p-3 ring-1 ring-white/10 lg:flex-col">
+              <span className="text-lg font-black">
+                Rodada {state?.session.current_round || 0} de {state?.session.total_rounds ?? "-"}
+              </span>
+              <Timer endsAt={state?.session.question_ends_at ?? null} />
+            </div>
+          </header>
 
           {state ? (
             <>
-              <div className="grid grid-cols-[1fr_auto] items-start gap-3 sm:gap-4">
-                <div className="min-w-0 flex-1 text-slate-950">
+              <div className="min-w-0 text-slate-950">
+                {state.session.status === "waiting" ? (
+                  <div className="rounded-[2rem] bg-white p-6 text-center shadow-soft">
+                    <p className="text-sm font-black uppercase text-ifGreen">Aguardando início</p>
+                    <h2 className="mt-2 text-4xl font-black sm:text-6xl">Aguardando o professor iniciar</h2>
+                  </div>
+                ) : state.session.status === "finished" ? (
+                  <div className="confetti rounded-[2rem] bg-white p-6 text-center shadow-soft">
+                    <p className="text-sm font-black uppercase text-ifGreen">Corrida finalizada</p>
+                    <h2 className="mt-2 text-4xl font-black sm:text-6xl">Vencedor: {state.winner?.name ?? "Turma"}</h2>
+                  </div>
+                ) : (
                   <QuestionCard question={state.question} status={state.session.status} />
-                </div>
-                <Timer endsAt={state.session.question_ends_at} />
+                )}
               </div>
-              <div className="rounded-[2rem] bg-asphalt p-4 shadow-soft sm:p-5">
+              <div className="min-h-0 flex-1 rounded-[2rem] bg-asphalt p-4 shadow-soft sm:p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                  <strong>Rodada {state.session.current_round || 0} de {state.session.total_rounds}</strong>
+                  <strong className="text-lg">Pista principal</strong>
                   <span className="rounded-full bg-white/15 px-4 py-2 text-sm font-black uppercase">{state.session.status}</span>
                 </div>
-                <RaceTrack players={state.ranking} totalRounds={state.session.total_rounds} />
+                <RaceTrack players={state.ranking} totalRounds={state.session.total_rounds} variant="screen" />
               </div>
             </>
           ) : (
@@ -45,13 +61,24 @@ export function BigScreenClient({ code }: { code: string }) {
           )}
         </section>
 
-        <aside className="rounded-[2rem] bg-white p-5 text-slate-950 shadow-soft">
-          <h2 className="mb-4 text-2xl font-black">Ranking</h2>
+        <aside className="flex min-h-0 flex-col gap-5 rounded-[2rem] bg-white p-5 text-slate-950 shadow-soft">
+          <div>
+          <h2 className="mb-4 text-2xl font-black">Ranking da turma</h2>
           <Ranking players={state?.ranking ?? []} />
+          </div>
           {state?.session.status === "finished" ? (
-            <div className="mt-5 rounded-2xl bg-green-50 p-4">
-              <p className="text-sm font-black uppercase text-green-700">Vencedor</p>
-              <strong className="text-3xl font-black text-green-900">{state.winner?.name ?? "Turma"}</strong>
+            <div className="confetti rounded-[1.75rem] bg-green-50 p-4 ring-1 ring-green-100">
+              <p className="text-sm font-black uppercase text-green-700">Pódio</p>
+              <div className="mt-4 grid gap-3">
+                {podium.map((player, index) => (
+                  <div key={player.id} className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm">
+                    <span className="font-black">
+                      {index + 1}º {player.name}
+                    </span>
+                    <span className="font-black text-ifGreen">{player.score} pts</span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : null}
         </aside>

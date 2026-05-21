@@ -205,7 +205,7 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
 
   if (state.session.status !== "running" || !state.question) throw new Error("Aguarde a próxima pergunta.");
   if (new Date(state.session.question_ends_at ?? 0).getTime() < Date.now()) {
-    return advanceRound(rawCode);
+    return { correct: false, points: 0, correctAnswer: null, state: await advanceRound(rawCode) };
   }
 
   const answer = ensureNumber(value, Number.NaN);
@@ -256,7 +256,7 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
       .update({ status: "finished", winner_player_id: player.id, question_ends_at: null })
       .eq("id", state.session.id);
     if (error) throw error;
-    return { correct: isCorrect, points, state: await getStateBySessionId(state.session.id) };
+    return { correct: isCorrect, points, correctAnswer: privateQuestion.correct_answer, state: await getStateBySessionId(state.session.id) };
   }
 
   const updatedState = await getStateBySessionId(state.session.id);
@@ -264,7 +264,7 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
     await advanceRound(rawCode);
   }
 
-  return { correct: isCorrect, points, state: await getStateBySessionId(state.session.id) };
+  return { correct: isCorrect, points, correctAnswer: privateQuestion.correct_answer, state: await getStateBySessionId(state.session.id) };
 }
 
 export async function advanceRound(rawCode: string) {

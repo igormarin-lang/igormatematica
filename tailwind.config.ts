@@ -9,6 +9,7 @@ const config: Config = {
         track: "#3b4656",
         raceRed: "#e63f3f",
         raceBlue: "#125b7f",
+        ifGreen: "#16833a",
         flagYellow: "#ffd35a",
         pitGreen: "#25a86f"
       },

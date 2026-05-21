@@ -3,11 +3,14 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink } from "@/components/Button";
+import { EmptyState } from "@/components/EmptyState";
+import { GameStatusBadge } from "@/components/GameStatusBadge";
 import { PlayerCard } from "@/components/PlayerCard";
 import { QuestionCard } from "@/components/QuestionCard";
 import { RaceTrack } from "@/components/RaceTrack";
 import { Ranking } from "@/components/Ranking";
-import { SessionCode } from "@/components/SessionCode";
+import { SessionCodeCard } from "@/components/SessionCodeCard";
+import { StatCard } from "@/components/StatCard";
 import { Timer } from "@/components/Timer";
 import { useGameState } from "@/lib/useGameState";
 import type { GameState, Session } from "@/types/game";
@@ -25,7 +28,7 @@ export function DashboardClient() {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { state, setState, error, refresh } = useGameState(code);
+  const { state, setState, error } = useGameState(code);
   const sessionUrl = useMemo(() => {
     if (!code || typeof window === "undefined") return "";
     return `${window.location.origin}/sessao/${code}`;
@@ -67,56 +70,55 @@ export function DashboardClient() {
     setMessage("");
   }
 
-  async function copyLink() {
-    if (!sessionUrl) return;
-    await navigator.clipboard.writeText(sessionUrl);
-    setMessage("Link copiado.");
-  }
-
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/professor/login");
   }
 
   return (
-    <main className="min-h-screen px-4 py-4 sm:px-6 sm:py-6">
-      <header className="mx-auto mb-5 flex w-full max-w-7xl items-center justify-between gap-3 rounded-[2rem] bg-white/85 p-4 shadow-sm ring-1 ring-slate-200 backdrop-blur">
+    <main className="academic-bg min-h-screen px-4 py-4 sm:px-6 sm:py-6">
+      <header className="sticky top-3 z-20 mx-auto mb-5 flex w-full max-w-[1600px] items-center justify-between gap-3 rounded-[2rem] bg-white/90 p-4 shadow-sm ring-1 ring-slate-200 backdrop-blur">
         <div>
-          <p className="text-sm font-black uppercase text-raceRed">Painel do professor</p>
+          <p className="text-sm font-black uppercase text-ifGreen">Painel do professor • IFSP / Trabalho acadêmico</p>
           <h1 className="text-2xl font-black leading-tight text-slate-950 sm:text-3xl">Corrida das Expressões</h1>
         </div>
-        <Button variant="quiet" onClick={logout}>
-          Sair
-        </Button>
+        <div className="flex items-center gap-2">
+          <ButtonLink href="/sobre" variant="quiet" className="hidden sm:inline-flex">
+            Sobre
+          </ButtonLink>
+          <Button variant="quiet" onClick={logout}>
+            Sair
+          </Button>
+        </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-7xl gap-5 xl:grid-cols-[330px_minmax(0,1fr)_320px]">
-        <aside className="rounded-[2rem] bg-white p-5 shadow-soft ring-1 ring-slate-200">
-          <label className="block text-sm font-black uppercase text-slate-500" htmlFor="rounds">
-            Rodadas
-          </label>
-          <select
-            id="rounds"
-            value={totalRounds}
-            onChange={(event) => setTotalRounds(Number(event.target.value))}
-            className="mt-2 h-12 w-full rounded-xl border-2 border-slate-200 px-3 font-bold"
-          >
-            {[5, 10, 15, 20].map((rounds) => (
-              <option key={rounds} value={rounds}>
-                {rounds} rodadas
-              </option>
-            ))}
-          </select>
-          <Button className="mt-4 w-full" onClick={createNewSession} disabled={loading}>
-            {loading ? "Criando..." : "Criar nova sessão"}
-          </Button>
+      <div className="mx-auto grid w-full max-w-[1600px] gap-5 xl:grid-cols-12">
+        <aside className="space-y-5 xl:col-span-3">
+          <section className="rounded-[2rem] bg-white/90 p-5 shadow-soft ring-1 ring-slate-200 backdrop-blur">
+            <label className="block text-sm font-black uppercase text-slate-500" htmlFor="rounds">
+              Rodadas
+            </label>
+            <select
+              id="rounds"
+              value={totalRounds}
+              onChange={(event) => setTotalRounds(Number(event.target.value))}
+              className="mt-2 h-14 w-full rounded-2xl border-2 border-slate-200 bg-white px-3 font-bold"
+            >
+              {[5, 10, 15, 20].map((rounds) => (
+                <option key={rounds} value={rounds}>
+                  {rounds} rodadas
+                </option>
+              ))}
+            </select>
+            <Button className="mt-4 w-full min-h-14" onClick={createNewSession} disabled={loading}>
+              {loading ? "Criando..." : "Criar nova sessão"}
+            </Button>
+            <p className="mt-3 text-sm font-semibold text-slate-500">Crie uma sala, projete o telão e peça para a turma entrar pelo código.</p>
+          </section>
 
           {state ? (
-            <div className="mt-5 space-y-4">
-              <SessionCode code={state.session.code} />
-              <Button variant="secondary" className="w-full" onClick={copyLink}>
-                Copiar link da sessão
-              </Button>
+            <div className="space-y-4">
+              <SessionCodeCard code={state.session.code} sessionUrl={sessionUrl} />
               <ButtonLink href={`/telao/${state.session.code}`} variant="quiet" className="w-full" target="_blank">
                 Abrir modo telão
               </ButtonLink>
@@ -136,12 +138,14 @@ export function DashboardClient() {
               </div>
             </div>
           ) : (
-            <p className="mt-5 rounded-2xl bg-slate-50 p-4 font-bold text-slate-500">Crie uma sessão para liberar o código da turma.</p>
+            <EmptyState title="Crie uma sessão">
+              <p>Crie uma sessão para liberar o código da turma e iniciar a corrida.</p>
+            </EmptyState>
           )}
           {message || error ? <p className="mt-4 rounded-xl bg-yellow-50 p-3 font-bold text-slate-700">{message || error}</p> : null}
         </aside>
 
-        <section className="min-w-0 space-y-5">
+        <section className="min-w-0 space-y-5 xl:col-span-6">
           {state ? (
             <>
               <div className="grid grid-cols-[1fr_auto] items-start gap-3 sm:gap-4">
@@ -150,33 +154,38 @@ export function DashboardClient() {
                 </div>
                 <Timer endsAt={state.session.question_ends_at} />
               </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <StatCard label="Status" value={state.session.status === "running" ? "Rodando" : state.session.status === "waiting" ? "Aguardando" : state.session.status === "paused" ? "Pausada" : "Final"} />
+                <StatCard label="Rodada" value={`${state.session.current_round || 0}/${state.session.total_rounds}`} />
+                <StatCard label="Alunos" value={state.players.length} />
+                <StatCard label="Dificuldade" value={state.question?.difficulty ?? "-"} />
+              </div>
               <div className="rounded-[2rem] bg-asphalt p-4 shadow-soft sm:p-5">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-white">
                   <strong>Rodada {state.session.current_round || 0} de {state.session.total_rounds}</strong>
-                  <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-black">{state.session.status}</span>
+                  <GameStatusBadge status={state.session.status} />
                 </div>
                 <RaceTrack players={state.ranking} totalRounds={state.session.total_rounds} />
               </div>
             </>
           ) : (
-            <div className="grid min-h-[420px] place-items-center rounded-[2rem] bg-white p-8 text-center shadow-soft ring-1 ring-slate-200 sm:min-h-[520px]">
-              <div>
-                <p className="text-sm font-black uppercase text-raceRed">Pronto para a aula</p>
-                <h2 className="mt-2 text-4xl font-black">Crie uma sessão</h2>
-              </div>
+            <div className="grid min-h-[520px] place-items-center rounded-[2rem] bg-asphalt p-6 text-center shadow-soft">
+              <EmptyState eyebrow="Pronto para a aula" title="A pista está vazia">
+                <p>Nenhuma sessão foi criada ainda. Escolha a quantidade de rodadas e libere o código para a turma.</p>
+              </EmptyState>
             </div>
           )}
         </section>
 
-        <aside className="space-y-5">
-          <section className="rounded-[2rem] bg-white p-5 shadow-soft ring-1 ring-slate-200">
+        <aside className="space-y-5 xl:col-span-3">
+          <section className="rounded-[2rem] bg-white/90 p-5 shadow-soft ring-1 ring-slate-200 backdrop-blur">
             <h2 className="mb-3 text-xl font-black">Alunos</h2>
             <div className="grid gap-2">
-              {state?.players.length ? state.players.map((player) => <PlayerCard key={player.id} player={player} />) : <p className="font-bold text-slate-500">Aguardando alunos.</p>}
+              {state?.players.length ? state.players.map((player) => <PlayerCard key={player.id} player={player} />) : <p className="rounded-2xl bg-slate-50 p-4 font-bold text-slate-500">Nenhum aluno entrou ainda. Peça para eles acessarem o site e digitarem o código.</p>}
             </div>
           </section>
-          <section className="rounded-[2rem] bg-white p-5 shadow-soft ring-1 ring-slate-200">
-            <h2 className="mb-3 text-xl font-black">Ranking</h2>
+          <section className="rounded-[2rem] bg-white/90 p-5 shadow-soft ring-1 ring-slate-200 backdrop-blur">
+            <h2 className="mb-3 text-xl font-black">Ranking da turma</h2>
             <Ranking players={state?.ranking ?? []} compact />
           </section>
         </aside>
