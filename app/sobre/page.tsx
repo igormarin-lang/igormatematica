@@ -40,6 +40,12 @@ export default function AboutPage() {
               Next.js, TypeScript, Tailwind CSS, Supabase e Vercel. O professor cria uma sessão, os alunos entram por código e o ranking atualiza em tempo real.
             </p>
           </article>
+          <article className="rounded-[2rem] bg-green-50 p-6 shadow-sm ring-1 ring-green-100">
+            <h2 className="text-2xl font-black text-slate-950">Identidade visual</h2>
+            <p className="mt-3 font-semibold leading-7 text-slate-600">
+              A interface é inspirada no universo visual do Instituto Federal, usando verde, módulos abstratos e organização em rede. A marca oficial não é recriada, distorcida ou usada como marca d&apos;água.
+            </p>
+          </article>
           <div className="flex flex-wrap gap-3">
             <ButtonLink href="/" variant="primary">
               Entrar na corrida
@@ -53,4 +59,3 @@ export default function AboutPage() {
     </main>
   );
 }
-

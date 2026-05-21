@@ -18,6 +18,11 @@ create table if not exists public.players (
   name text not null,
   score integer not null default 0,
   position integer not null default 0,
+  car_color text default '#2f9e41',
+  car_model text default 'classic',
+  car_sticker text default 'star',
+  celebration_emoji text default '🎉',
+  student_theme text default 'if-green',
   joined_at timestamptz not null default now()
 );
 

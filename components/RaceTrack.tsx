@@ -1,4 +1,5 @@
 import type { PlayerWithAnswered } from "@/types/game";
+import { Car2D } from "@/components/Car2D";
 
 const carStyles = [
   "text-raceRed",
@@ -54,10 +55,10 @@ export function RaceTrack({
               style={{ width: `${progress * 100}%` }}
             />
             <span
-              className={`absolute bottom-2 drop-shadow-lg transition-all duration-500 ${carSize} ${carStyles[index % carStyles.length]}`}
+              className={`absolute bottom-2 drop-shadow-lg transition-all duration-500 ${carStyles[index % carStyles.length]}`}
               style={{ left: `calc(12px + ${progress * 100}% - ${progress * (variant === "screen" ? 82 : 64)}px)` }}
             >
-              🏎️
+              <Car2D color={player.car_color} model={player.car_model} sticker={player.car_sticker} className={carSize} />
             </span>
             <span className="absolute bottom-2 right-12 z-10 text-xs font-black text-white/70">CHEGADA</span>
             <span className="checkered absolute bottom-0 right-0 top-0 w-10 opacity-90 sm:w-12" />

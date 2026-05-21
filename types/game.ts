@@ -1,5 +1,7 @@
 export type GameStatus = "waiting" | "running" | "paused" | "finished";
 export type Difficulty = "facil" | "medio" | "dificil";
+export type CarModel = "classic" | "formula" | "kart" | "future" | "mini";
+export type StudentTheme = "if-green" | "neon" | "classroom" | "arcade" | "minimal";
 
 export type Session = {
   id: string;
@@ -19,6 +21,11 @@ export type Player = {
   name: string;
   score: number;
   position: number;
+  car_color: string | null;
+  car_model: CarModel | string | null;
+  car_sticker: string | null;
+  celebration_emoji: string | null;
+  student_theme: StudentTheme | string | null;
   joined_at: string;
 };
 

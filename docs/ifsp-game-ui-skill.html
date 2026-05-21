@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Corrida das Expressões — IFSP Game UI Skill</title>
+  <style>
+    :root {
+      --if-green:#2f9e41; --if-red:#cd191e; --if-black:#000; --if-white:#fff;
+      --green-950:#052e16; --green-900:#064e3b; --green-800:#166534; --green-700:#2f9e41;
+      --green-600:#35b84d; --green-500:#55c96b; --green-100:#dcfce7; --green-50:#f0fdf4;
+      --game-blue:#2563eb; --game-purple:#7c3aed; --game-yellow:#facc15; --game-orange:#f97316;
+      --game-pink:#ec4899; --game-cyan:#06b6d4; --bg-main:#f0fdf4; --bg-soft:#f8fafc;
+      --text-main:#06130a; --text-muted:#647067; --panel:#fff; --line:#d9eadf;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:linear-gradient(135deg,#f8fafc,#f0fdf4,#dcfce7);color:var(--text-main)}
+    main{min-height:100vh;padding:28px}.grid{display:grid;gap:18px}.hero{grid-template-columns:.9fr 1.1fr;min-height:calc(100vh - 56px)}.card{border:1px solid var(--line);border-radius:36px;background:rgba(255,255,255,.9);padding:28px}.dark{background:linear-gradient(135deg,#020806,var(--green-950));color:white}
+    h1{font-size:clamp(42px,7vw,92px);line-height:.9;margin:10px 0;font-weight:900} h2{font-size:clamp(30px,4vw,56px);line-height:.95} p{font-weight:700;color:var(--text-muted);line-height:1.55}.dark p{color:rgba(255,255,255,.75)}
+    .badge{display:inline-flex;border-radius:999px;padding:9px 13px;background:white;border:1px solid var(--line);font-size:13px;font-weight:900;color:var(--green-900)}.green{background:var(--if-green);color:white}.yellow{background:var(--game-yellow);color:#211900}
+    input,select,button{height:60px;border-radius:20px;border:2px solid var(--line);font:inherit;font-weight:900;padding:0 16px}button{border:0;background:var(--if-green);color:white}.code{height:78px;text-align:center;font-size:34px;letter-spacing:.18em}
+    .track{position:relative;min-height:112px;border:12px solid #14251c;border-radius:32px;overflow:hidden;background:repeating-linear-gradient(90deg,#485767 0 34px,#6f7e8c 34px 48px)}.track:after{content:"";position:absolute;right:32px;top:0;width:48px;height:100%;background:conic-gradient(#fff 25%,#111827 0 50%,#fff 0 75%,#111827 0) 0 0/18px 18px}
+    .car{position:absolute;left:var(--x,20%);bottom:18px;width:78px;height:44px}.body{position:absolute;left:6px;right:6px;bottom:9px;height:28px;border-radius:22px 28px 12px 12px;background:var(--car,var(--if-green));border:3px solid rgba(255,255,255,.85)}.top{position:absolute;left:28px;top:0;width:28px;height:22px;border-radius:18px 18px 6px 6px;background:rgba(255,255,255,.86)}.wheel{position:absolute;bottom:0;width:16px;height:16px;border-radius:50%;background:#111827;border:4px solid #94a3b8}.left{left:12px}.right{right:12px}.sticker{position:absolute;left:35px;top:16px;z-index:3;font-size:12px;font-weight:900}
+    .modules{display:grid;grid-template-columns:repeat(4,18px);gap:7px;opacity:.22}.modules span{width:18px;height:18px;border-radius:4px;background:var(--if-green)}.modules .red{background:var(--if-red);border-radius:50%}
+    .rules{grid-template-columns:repeat(3,1fr);margin-top:28px}@media(max-width:900px){.hero,.rules{grid-template-columns:1fr}main{padding:16px}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="grid hero">
+    <div class="card">
+      <span class="badge green">Projeto educacional</span>
+      <h1>Corrida das Expressões</h1>
+      <p>Gabarito visual IFSP Game UI: institucional no professor, divertido no aluno, imersivo no telão.</p>
+      <div class="grid" style="grid-template-columns:repeat(4,max-content);margin:18px 0"><span class="badge">EJA</span><span class="badge yellow">Tempo real</span><span class="badge">Matemática</span><span class="badge">IFSP</span></div>
+      <input class="code" value="DG8N" aria-label="Código da sessão" /><br><br><button>Entrar na corrida</button>
+    </div>
+    <div class="card dark">
+      <div class="modules"><span class="red"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <h2>Pista, ranking e carrinhos personalizados.</h2>
+      <div class="track"><strong style="position:absolute;left:22px;top:18px;color:white">Ana</strong><div class="car" style="--x:52%;--car:#2f9e41"><span class="top"></span><span class="body"></span><span class="sticker">⭐</span><span class="wheel left"></span><span class="wheel right"></span></div></div>
+      <div class="track"><strong style="position:absolute;left:22px;top:18px;color:white">João</strong><div class="car" style="--x:30%;--car:#2563eb"><span class="top"></span><span class="body"></span><span class="sticker">🚀</span><span class="wheel left"></span><span class="wheel right"></span></div></div>
+    </div>
+  </section>
+  <section class="grid rules">
+    <div class="card"><strong>Marca IF</strong><p>Não recriar logo IF manualmente, não distorcer, não trocar cores oficiais, não aplicar efeitos e não usar como marca d'água. Módulos quadrados são apenas inspiração abstrata.</p></div>
+    <div class="card"><strong>Aluno</strong><p>Personalização com cor, modelo, adesivo, emoji e tema visual. Feedback estilo Kahoot/Gartic.</p></div>
+    <div class="card"><strong>Telão</strong><p>Fundo escuro, código grande, pergunta clara, pista dominante, ranking lateral e pódio final.</p></div>
+  </section>
+</main>
+</body>
+</html>

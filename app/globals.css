@@ -4,6 +4,30 @@
 
 :root {
   color-scheme: light;
+  --if-green: #2f9e41;
+  --if-red: #cd191e;
+  --if-black: #000000;
+  --if-white: #ffffff;
+  --green-950: #052e16;
+  --green-900: #064e3b;
+  --green-800: #166534;
+  --green-700: #2f9e41;
+  --green-600: #35b84d;
+  --green-500: #55c96b;
+  --green-100: #dcfce7;
+  --green-50: #f0fdf4;
+  --game-blue: #2563eb;
+  --game-purple: #7c3aed;
+  --game-yellow: #facc15;
+  --game-orange: #f97316;
+  --game-pink: #ec4899;
+  --game-cyan: #06b6d4;
+  --bg-main: #f0fdf4;
+  --bg-soft: #f8fafc;
+  --text-main: #06130a;
+  --text-muted: #647067;
+  --panel: #ffffff;
+  --line: #d9eadf;
 }
 
 * {
@@ -21,7 +45,7 @@ body {
     linear-gradient(315deg, rgba(255, 211, 90, 0.18), transparent 26rem),
     #f5f7fb;
   color: #172033;
-  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+  font-family: var(--font-open-sans), Arial, Helvetica, sans-serif;
 }
 
 button,
@@ -104,4 +128,11 @@ select {
     radial-gradient(circle, #25a86f 0 3px, transparent 4px);
   background-position: 8% 24%, 42% 14%, 72% 28%;
   background-size: 120px 120px;
+}
+
+.if-modules-bg {
+  background-image:
+    linear-gradient(var(--green-100) 1px, transparent 1px),
+    linear-gradient(90deg, var(--green-100) 1px, transparent 1px);
+  background-size: 28px 28px;
 }

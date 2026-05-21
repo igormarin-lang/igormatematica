@@ -47,6 +47,28 @@ As tabelas criadas são:
 
 O Realtime é habilitado para `sessions`, `players` e `answers`.
 
+### Migration de personalização dos alunos
+
+Para habilitar cores/modelos/adesivos dos carrinhos em projetos já criados, execute também:
+
+```sql
+alter table players add column if not exists car_color text default '#2f9e41';
+alter table players add column if not exists car_model text default 'classic';
+alter table players add column if not exists car_sticker text default 'star';
+alter table players add column if not exists celebration_emoji text default '🎉';
+alter table players add column if not exists student_theme text default 'if-green';
+```
+
+O arquivo está em `supabase/migrations/add_student_customization.sql`.
+
+## Regras visuais IFSP
+
+- Não recriar o logo IF manualmente como marca oficial.
+- Não distorcer, rotacionar, recolorir ou aplicar efeitos na marca.
+- Não usar a marca oficial como marca d'água.
+- Os módulos quadrados usados no app são apenas inspiração visual abstrata.
+- Caso a logo oficial seja adicionada futuramente, manter área de respiro e aplicação sobre fundo adequado.
+
 ## Rodar localmente
 
 ```bash

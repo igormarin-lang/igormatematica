@@ -98,7 +98,17 @@ export async function getStateBySessionId(sessionId: string): Promise<GameState>
   });
 }
 
-export async function joinSession(rawCode: string, rawName: string) {
+export async function joinSession(
+  rawCode: string,
+  rawName: string,
+  customization: {
+    carColor?: string;
+    carModel?: string;
+    carSticker?: string;
+    celebrationEmoji?: string;
+    studentTheme?: string;
+  } = {}
+) {
   const supabase = createServiceClient();
   const code = sanitizeCode(rawCode);
   const name = sanitizePlayerName(rawName);
@@ -110,13 +120,28 @@ export async function joinSession(rawCode: string, rawName: string) {
   if (!session) throw new Error("Código da sessão não encontrado.");
   if (session.status !== "waiting") throw new Error("A corrida já começou.");
 
-  const { data: player, error: playerError } = await supabase
+  let { data: player, error: playerError } = await supabase
     .from("players")
-    .insert({ session_id: session.id, name })
+    .insert({
+      session_id: session.id,
+      name,
+      car_color: customization.carColor ?? "#2f9e41",
+      car_model: customization.carModel ?? "classic",
+      car_sticker: customization.carSticker ?? "star",
+      celebration_emoji: customization.celebrationEmoji ?? "🎉",
+      student_theme: customization.studentTheme ?? "if-green"
+    })
     .select("*")
     .single<Player>();
 
+  if (playerError && (playerError.message.includes("car_color") || playerError.message.includes("schema cache"))) {
+    const fallback = await supabase.from("players").insert({ session_id: session.id, name }).select("*").single<Player>();
+    player = fallback.data;
+    playerError = fallback.error;
+  }
+
   if (playerError) throw playerError;
+  if (!player) throw new Error("Não foi possível criar o aluno.");
   return player;
 }
 

@@ -3,10 +3,12 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/Button";
+import { CarPreview3D } from "@/components/CarPreview3D";
 import { GameStatusBadge } from "@/components/GameStatusBadge";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Ranking } from "@/components/Ranking";
 import { StatCard } from "@/components/StatCard";
+import { StudentCustomizer, type StudentCustomization } from "@/components/StudentCustomizer";
 import { Timer } from "@/components/Timer";
 import { useGameState } from "@/lib/useGameState";
 import type { GameState, Player } from "@/types/game";
@@ -29,6 +31,14 @@ type AnswerResponse = {
 
 export function PlayerSession({ code }: { code: string }) {
   const [name, setName] = useState("");
+  const [customization, setCustomization] = useState<StudentCustomization>({
+    name: "",
+    carColor: "#2f9e41",
+    carModel: "classic",
+    carSticker: "star",
+    celebrationEmoji: "🎉",
+    studentTheme: "if-green"
+  });
   const [playerId, setPlayerId] = useState("");
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState<{ text: string; type: "idle" | "correct" | "wrong" | "info" }>({ text: "", type: "idle" });
@@ -54,7 +64,7 @@ export function PlayerSession({ code }: { code: string }) {
     const response = await fetch(`/api/sessions/${code}/join`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ ...customization, name: customization.name || name })
     });
     const data = (await response.json()) as JoinResponse;
     setLoading(false);
@@ -96,29 +106,26 @@ export function PlayerSession({ code }: { code: string }) {
   if (!me) {
     return (
       <main className="academic-bg grid min-h-screen place-items-center px-4 py-5 sm:px-5 sm:py-10">
-        <form onSubmit={join} className="w-full max-w-lg overflow-hidden rounded-[2rem] bg-white shadow-soft ring-1 ring-slate-200">
-          <div className="speed-lines p-5 text-white">
-            <Link href="/" className="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-black">
+        <div className="w-full">
+          <div className="mx-auto mb-4 max-w-6xl">
+            <Link href="/" className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-ifGreen shadow-sm ring-1 ring-slate-200">
               Trocar código
             </Link>
-            <p className="mt-8 text-sm font-black uppercase text-flagYellow">Sessão {code}</p>
-            <h1 className="mt-2 text-5xl font-black leading-none">Seu nome</h1>
           </div>
-          <div className="p-5 sm:p-7">
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              maxLength={24}
-              placeholder="Ex.: Ana"
-              aria-label="Digite seu nome"
-              className="h-16 w-full rounded-2xl border-2 border-slate-200 px-4 text-xl font-bold outline-none focus:border-ifGreen"
-            />
-            <Button className="mt-5 w-full sm:min-h-16" type="submit" disabled={loading || name.trim().length < 2}>
-              {loading ? "Entrando..." : "Entrar na corrida"}
-            </Button>
-            {message.text || error ? <p className="mt-4 rounded-xl bg-red-50 p-3 font-bold text-raceRed">{message.text || error}</p> : null}
-          </div>
-        </form>
+          <StudentCustomizer
+            value={customization}
+            onChange={(next) => {
+              setCustomization(next);
+              setName(next.name);
+            }}
+            onSubmit={() => {
+              const synthetic = { preventDefault() {} } as FormEvent<HTMLFormElement>;
+              void join(synthetic);
+            }}
+            loading={loading}
+            message={message.text || error}
+          />
+        </div>
       </main>
     );
   }
@@ -127,6 +134,7 @@ export function PlayerSession({ code }: { code: string }) {
     <main className="academic-bg min-h-screen px-4 py-4 sm:py-6">
       <section className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1280px] gap-5 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="space-y-5">
+        <CarPreview3D color={me.car_color} model={me.car_model} sticker={me.car_sticker} celebration={me.celebration_emoji} success={message.type === "correct"} />
         <div className="rounded-[2rem] bg-slate-950 p-4 text-white shadow-soft sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
@@ -196,7 +204,7 @@ export function PlayerSession({ code }: { code: string }) {
                   ? "Aguardando o professor iniciar."
                   : me.answered_current_round
                     ? "Resposta enviada. Aguarde a próxima rodada."
-                    : "Leia com calma e envie sua resposta.")}
+                    : "Seu carro está pronto na largada.")}
           </p>
         </form>
 
