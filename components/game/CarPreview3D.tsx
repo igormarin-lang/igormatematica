@@ -13,6 +13,7 @@ type CarPreview3DProps = {
   model?: string | null;
   sticker?: string | null;
   isCelebrating?: boolean;
+  isActive?: boolean;
   size?: PreviewSize;
   playerName?: string | null;
   celebration?: string | null;
@@ -45,7 +46,7 @@ class PreviewErrorBoundary extends Component<{ fallback: ReactNode; children: Re
   }
 }
 
-export function CarPreview3D({ color, model, sticker, isCelebrating = false, size = "lg", playerName, celebration }: CarPreview3DProps) {
+export function CarPreview3D({ color, model, sticker, isCelebrating = false, isActive = true, size = "lg", playerName, celebration }: CarPreview3DProps) {
   const carColor = safeCarColor(color);
   const carModel = safeCarModel(model);
   const heightClass = size === "sm" ? "min-h-56" : size === "md" ? "min-h-72" : "min-h-[23rem]";
@@ -66,7 +67,7 @@ export function CarPreview3D({ color, model, sticker, isCelebrating = false, siz
 
       <div className="relative z-0 h-[18.5rem] pt-12">
         <PreviewErrorBoundary fallback={<CarPreviewFallback2D color={color} model={model} sticker={sticker} />}>
-          <CanvasPreview color={carColor} model={carModel} sticker={sticker} isCelebrating={isCelebrating} />
+          <CanvasPreview color={carColor} model={carModel} sticker={sticker} isCelebrating={isCelebrating} isActive={isActive} />
         </PreviewErrorBoundary>
       </div>
 

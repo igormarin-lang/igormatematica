@@ -11,6 +11,7 @@ type Props = {
   model?: string | null;
   sticker?: string | null;
   isCelebrating?: boolean;
+  isActive?: boolean;
 };
 
 const box = (width: number, height: number, depth: number): [number, number, number] => [width, height, depth];
@@ -30,7 +31,7 @@ function Wheel({ x, z, radius = 0.28 }: { x: number; z: number; radius?: number 
   );
 }
 
-function CarModel({ color, model, sticker, isCelebrating = false }: Props) {
+function CarModel({ color, model, sticker, isCelebrating = false, isActive = true }: Props) {
   const group = useRef<Group>(null);
   const carColor = safeCarColor(color);
   const carModel = safeCarModel(model);
@@ -42,16 +43,23 @@ function CarModel({ color, model, sticker, isCelebrating = false }: Props) {
     if (normalized === "turbo") return { body: box(2.9, 0.52, 1.22), cabin: box(0.92, 0.54, 0.78), wheel: 0.32, spoiler: true, nose: false, kart: false, neon: false };
     return { body: box(2.65, 0.52, 1.2), cabin: box(0.95, 0.58, 0.8), wheel: 0.3, spoiler: false, nose: false, kart: false, neon: false };
   }, [normalized]);
+  const wheelBase = useMemo(() => {
+    if (normalized === "formula") return { x: 1.36, z: 0.68 };
+    if (normalized === "kart") return { x: 0.92, z: 0.78 };
+    if (normalized === "futuristic") return { x: 1.22, z: 0.76 };
+    if (normalized === "turbo") return { x: 1.18, z: 0.78 };
+    return { x: 1.08, z: 0.76 };
+  }, [normalized]);
 
   useFrame(({ clock }) => {
-    if (!group.current) return;
+    if (!group.current || !isActive) return;
     const t = clock.getElapsedTime();
-    group.current.rotation.y = -0.55 + Math.sin(t * 0.65) * 0.12 + (isCelebrating ? t * 0.8 : 0);
+    group.current.rotation.y = -0.5 + Math.sin(t * 0.55) * 0.08 + (isCelebrating ? Math.sin(t * 8) * 0.08 : 0);
     group.current.position.y = Math.sin(t * 1.6) * 0.025 + (isCelebrating ? Math.abs(Math.sin(t * 8)) * 0.12 : 0);
   });
 
   return (
-    <group ref={group} rotation={[0.08, -0.55, 0]} position={[0, -0.14, 0]} castShadow>
+    <group ref={group} rotation={[0.08, -0.5, 0]} position={[0, -0.2, 0]} scale={0.88} castShadow>
       <RoundedBox args={dims.body} radius={normalized === "formula" ? 0.18 : 0.28} smoothness={6} position={[0, 0.55, 0]} castShadow receiveShadow>
         <meshStandardMaterial color={carColor} roughness={0.42} metalness={0.06} />
       </RoundedBox>
@@ -119,20 +127,27 @@ function CarModel({ color, model, sticker, isCelebrating = false }: Props) {
         <meshStandardMaterial color="#fde68a" emissive="#facc15" emissiveIntensity={0.4} />
       </mesh>
 
-      <Wheel x={-0.98} z={0.74} radius={dims.wheel} />
-      <Wheel x={0.98} z={0.74} radius={dims.wheel} />
-      <Wheel x={-0.98} z={-0.74} radius={dims.wheel} />
-      <Wheel x={0.98} z={-0.74} radius={dims.wheel} />
+      <Wheel x={-wheelBase.x} z={wheelBase.z} radius={dims.wheel} />
+      <Wheel x={wheelBase.x} z={wheelBase.z} radius={dims.wheel} />
+      <Wheel x={-wheelBase.x} z={-wheelBase.z} radius={dims.wheel} />
+      <Wheel x={wheelBase.x} z={-wheelBase.z} radius={dims.wheel} />
     </group>
   );
 }
 
 export function CarPreviewCanvas(props: Props) {
   return (
-    <Canvas camera={{ position: [4.4, 2.8, 4.6], fov: 36 }} dpr={[1, 1.6]} shadows gl={{ antialias: true, alpha: true }}>
+    <Canvas
+      camera={{ position: [4.9, 3.05, 5.35], fov: 40 }}
+      dpr={[1, 1.25]}
+      frameloop={props.isActive === false ? "demand" : "always"}
+      performance={{ min: 0.5 }}
+      shadows
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+    >
       <Suspense fallback={null}>
         <ambientLight intensity={0.85} />
-        <directionalLight position={[3, 5, 4]} intensity={2.1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+        <directionalLight position={[3, 5, 4]} intensity={2.1} castShadow shadow-mapSize-width={512} shadow-mapSize-height={512} />
         <spotLight position={[-3, 5, 2]} angle={0.45} penumbra={0.6} intensity={1.1} />
         <CarModel {...props} />
         <ContactShadows position={[0, -0.02, 0]} opacity={0.45} scale={6} blur={2.4} far={2.4} />

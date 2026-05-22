@@ -13,9 +13,9 @@ export function BigScreenClient({ code }: { code: string }) {
   const podium = state?.ranking.slice(0, 3) ?? [];
 
   return (
-    <main className="scoreboard-bg min-h-screen overflow-hidden px-4 py-4 text-white sm:px-6 sm:py-6">
-      <div className="mx-auto grid h-full min-h-[calc(100vh-2rem)] max-w-[1800px] gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <section className="flex min-h-0 flex-col gap-5">
+    <main className="scoreboard-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-6 sm:py-6">
+      <div className="mx-auto grid h-full max-w-[1800px] gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="flex min-h-0 flex-col gap-4 overflow-hidden">
           <header className="grid gap-4 rounded-[2rem] bg-white/10 p-4 ring-1 ring-white/10 backdrop-blur sm:p-5 lg:grid-cols-[1fr_auto_auto] lg:items-center">
             <div className="flex min-w-0 items-center gap-4">
               <IFSPLogo variant="white" compact className="hidden shrink-0 sm:inline-flex" />
@@ -52,7 +52,7 @@ export function BigScreenClient({ code }: { code: string }) {
                   <QuestionCard question={state.question} status={state.session.status} />
                 )}
               </div>
-              <div className="min-h-0 flex-1 rounded-[2rem] bg-asphalt p-4 shadow-soft sm:p-5">
+              <div className="min-h-0 flex-1 overflow-y-auto rounded-[2rem] bg-asphalt p-4 shadow-soft sm:p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <strong className="text-lg">Pista principal</strong>
                   <span className="rounded-full bg-white/15 px-4 py-2 text-sm font-black uppercase">
@@ -67,7 +67,7 @@ export function BigScreenClient({ code }: { code: string }) {
           )}
         </section>
 
-        <aside className="flex min-h-0 flex-col gap-5 rounded-[2rem] bg-white p-5 text-slate-950 shadow-soft">
+        <aside className="flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[2rem] bg-white p-5 text-slate-950 shadow-soft">
           <div>
             <h2 className="mb-4 text-2xl font-black">Ranking da turma</h2>
             <Ranking players={state?.ranking ?? []} />

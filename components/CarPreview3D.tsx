@@ -6,6 +6,7 @@ export function CarPreview3D({
   sticker,
   celebration,
   success = false,
+  isActive = true,
   playerName,
   size = "lg"
 }: {
@@ -14,6 +15,7 @@ export function CarPreview3D({
   sticker?: string | null;
   celebration?: string | null;
   success?: boolean;
+  isActive?: boolean;
   playerName?: string | null;
   size?: "sm" | "md" | "lg" | "large";
 }) {
@@ -24,6 +26,7 @@ export function CarPreview3D({
       sticker={sticker}
       celebration={celebration}
       isCelebrating={success}
+      isActive={isActive}
       playerName={playerName}
       size={size}
     />

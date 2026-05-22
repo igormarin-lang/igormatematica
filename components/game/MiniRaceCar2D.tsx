@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { safeCarColor, safeCarModel, stickerLabel } from "@/lib/studentCustomization";
 
-export function MiniRaceCar2D({ color, model, sticker, className = "" }: { color?: string | null; model?: string | null; sticker?: string | null; className?: string }) {
+function MiniRaceCar2DBase({ color, model, sticker, className = "" }: { color?: string | null; model?: string | null; sticker?: string | null; className?: string }) {
   const carColor = safeCarColor(color);
   const carModel = safeCarModel(model);
   const formula = carModel === "formula" || carModel === "futuristic" || carModel === "future";
@@ -23,3 +24,6 @@ export function MiniRaceCar2D({ color, model, sticker, className = "" }: { color
     </span>
   );
 }
+
+export const MiniRaceCar2D = memo(MiniRaceCar2DBase);
+MiniRaceCar2D.displayName = "MiniRaceCar2D";

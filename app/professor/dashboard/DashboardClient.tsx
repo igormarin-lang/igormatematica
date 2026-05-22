@@ -113,7 +113,7 @@ export function DashboardClient() {
   }
 
   return (
-    <main className="academic-bg min-h-screen px-4 py-4 sm:px-6 sm:py-6">
+    <main className="academic-bg min-h-[100dvh] px-4 py-4 sm:px-6 sm:py-6">
       <header className="sticky top-3 z-20 mx-auto mb-5 flex w-full max-w-[1600px] items-center justify-between gap-3 rounded-[2rem] bg-green-950/90 p-4 shadow-sm ring-1 ring-white/10 backdrop-blur">
         <div className="flex min-w-0 items-center gap-4">
           <IFSPLogo compact className="hidden shrink-0 sm:inline-flex" />

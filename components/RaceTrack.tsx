@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { Car2D } from "@/components/Car2D";
 import type { PlayerWithAnswered } from "@/types/game";
 
-export function RaceTrack({
+function RaceTrackBase({
   players,
   totalRounds,
   variant = "default"
@@ -67,3 +68,6 @@ export function RaceTrack({
     </div>
   );
 }
+
+export const RaceTrack = memo(RaceTrackBase);
+RaceTrack.displayName = "RaceTrack";

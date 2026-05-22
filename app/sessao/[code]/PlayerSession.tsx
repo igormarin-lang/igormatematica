@@ -14,6 +14,7 @@ import { Ranking } from "@/components/Ranking";
 import { StatCard } from "@/components/StatCard";
 import { StudentCustomizer, type StudentCustomization } from "@/components/StudentCustomizer";
 import { Timer } from "@/components/Timer";
+import { GameHeaderCompact } from "@/components/layout/GameHeaderCompact";
 import { useGameState } from "@/lib/useGameState";
 import type { GameState, Player } from "@/types/game";
 
@@ -56,6 +57,7 @@ export function PlayerSession({ code }: { code: string }) {
   const [message, setMessage] = useState<{ text: string; type: "idle" | "correct" | "wrong" | "info" }>({ text: "", type: "idle" });
   const [loading, setLoading] = useState(false);
   const [savingCar, setSavingCar] = useState(false);
+  const [editingWaiting, setEditingWaiting] = useState(false);
   const [syncedWaitingPlayerId, setSyncedWaitingPlayerId] = useState("");
   const { state, setState, error } = useGameState(code);
   const storageKey = useMemo(() => `corrida-player-${code}`, [code]);
@@ -84,8 +86,8 @@ export function PlayerSession({ code }: { code: string }) {
     setSyncedWaitingPlayerId(me.id);
   }, [me, state?.session.status, syncedWaitingPlayerId]);
 
-  async function join(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function join(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
     setLoading(true);
     setMessage({ text: "", type: "idle" });
 
@@ -105,6 +107,7 @@ export function PlayerSession({ code }: { code: string }) {
     window.localStorage.setItem(storageKey, data.player.id);
     setPlayerId(data.player.id);
     setState(data.state);
+    setEditingWaiting(false);
   }
 
   async function saveCar() {
@@ -125,6 +128,7 @@ export function PlayerSession({ code }: { code: string }) {
     }
 
     setState(data.state);
+    setEditingWaiting(false);
     setMessage({ text: "Carrinho atualizado!", type: "correct" });
   }
 
@@ -168,12 +172,13 @@ export function PlayerSession({ code }: { code: string }) {
 
   if (!me) {
     return (
-      <main className="game-mobile-bg grid min-h-screen place-items-center px-4 py-5 sm:px-5 sm:py-10">
-        <div className="w-full">
-          <div className="mx-auto mb-4 max-w-6xl">
+      <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 sm:px-5">
+        <div className="mx-auto flex h-full w-full max-w-[1280px] flex-col gap-4">
+          <div className="flex shrink-0 items-center justify-between gap-3">
             <Link href="/" className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-ifGreen shadow-sm ring-1 ring-slate-200">
               Trocar código
             </Link>
+            <span className="rounded-full bg-green-950/80 px-4 py-2 text-sm font-black text-flagYellow">Sessão {code}</span>
           </div>
           <StudentCustomizer
             value={customization}
@@ -182,11 +187,12 @@ export function PlayerSession({ code }: { code: string }) {
               setName(next.name);
             }}
             onSubmit={() => {
-              const synthetic = { preventDefault() {} } as FormEvent<HTMLFormElement>;
-              void join(synthetic);
+              void join();
             }}
             loading={loading}
             message={message.text || error}
+            title="Crie seu piloto"
+            subtitle="Em poucos passos, escolha nome, carrinho, cor e comemoração."
           />
         </div>
       </main>
@@ -194,9 +200,62 @@ export function PlayerSession({ code }: { code: string }) {
   }
 
   if (state?.session.status === "waiting") {
+    if (!editingWaiting) {
+      return (
+        <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-5">
+          <section className="mx-auto grid h-full max-w-[1280px] grid-rows-[auto_minmax(0,1fr)] gap-4">
+            <GameHeaderCompact
+              title="Seu carrinho está pronto"
+              subtitle="Aguardando largada"
+              right={<span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase text-flagYellow">Sessão {code}</span>}
+            />
+
+            <div className="grid min-h-0 gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+              <div className="min-h-0">
+                <CarPreview3D
+                  color={me.car_color}
+                  model={me.car_model}
+                  sticker={me.car_sticker}
+                  celebration={me.celebration_emoji}
+                  playerName={me.name}
+                  size="large"
+                />
+              </div>
+
+              <div className="flex min-h-0 flex-col gap-4 overflow-y-auto rounded-[2rem] border-2 border-white/15 bg-green-950/80 p-4 shadow-soft sm:p-5">
+                <div className="text-center lg:text-left">
+                  <p className="text-sm font-black uppercase text-flagYellow">A pista espera a turma</p>
+                  <h1 className="mt-2 text-3xl font-black sm:text-5xl">Aguardando o professor iniciar</h1>
+                  <p className="mt-2 font-semibold text-white/75">Seu carrinho está pronto na largada. Você pode personalizar enquanto a corrida ainda não começou.</p>
+                </div>
+
+                <GameButton className="w-full" type="button" icon="✎" onClick={() => setEditingWaiting(true)}>
+                  Editar carrinho
+                </GameButton>
+
+                {message.text || error ? (
+                  <p className={`rounded-2xl p-3 text-center font-black ${message.type === "correct" ? "bg-green-100 text-ifGreen" : "bg-orange-50 text-raceRed"}`}>
+                    {message.text || error}
+                  </p>
+                ) : null}
+
+                <GamePanel tone="dark" className="mt-auto">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h2 className="text-xl font-black text-flagYellow">Pista de espera</h2>
+                    <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase">Sessão {code}</span>
+                  </div>
+                  <RaceTrack2D players={[me]} totalRounds={state.session.total_rounds} variant="compact" />
+                </GamePanel>
+              </div>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     return (
-      <main className="game-mobile-bg min-h-screen px-4 py-5 text-white sm:px-5 sm:py-8">
-        <section className="mx-auto grid max-w-[1280px] gap-5">
+      <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-5">
+        <section className="mx-auto grid h-full max-w-[1280px] grid-rows-[auto_minmax(0,1fr)] gap-4">
           <div className="rounded-[2rem] border-2 border-white/15 bg-green-950/80 p-5 text-center shadow-soft">
             <p className="text-sm font-black uppercase text-flagYellow">Aguardando largada</p>
             <h1 className="mt-2 text-3xl font-black sm:text-5xl">Seu carrinho está pronto na largada.</h1>
@@ -213,23 +272,17 @@ export function PlayerSession({ code }: { code: string }) {
             submitLabel="Salvar carrinho"
             loadingLabel="Salvando..."
             lockName
+            onCancel={() => setEditingWaiting(false)}
           />
-          <GamePanel tone="dark">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-xl font-black text-flagYellow">Pista de espera</h2>
-              <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase">Sessão {code}</span>
-            </div>
-            <RaceTrack2D players={[me]} totalRounds={state.session.total_rounds} variant="compact" />
-          </GamePanel>
         </section>
       </main>
     );
   }
 
   return (
-    <main className="game-mobile-bg min-h-screen px-4 py-4 text-white sm:py-6">
-      <section className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1280px] gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="space-y-5">
+    <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-5">
+      <section className="mx-auto grid h-full max-w-[1280px] gap-4 overflow-hidden lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
           <CarPreview3D
             color={me.car_color}
             model={me.car_model}
@@ -278,7 +331,7 @@ export function PlayerSession({ code }: { code: string }) {
           ) : null}
         </div>
 
-        <div className="space-y-5">
+        <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
           <QuestionCard question={state?.question ?? null} status={state?.session.status ?? "waiting"} />
 
           <form onSubmit={sendAnswer} className="rounded-[2rem] border-2 border-green-950/15 bg-white p-5 text-green-950 shadow-soft backdrop-blur">

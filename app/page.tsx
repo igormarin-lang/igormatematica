@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Car2D } from "@/components/Car2D";
 import { GameButton, GameButtonLink } from "@/components/GameButton";
 import { GameInput } from "@/components/GameInput";
 import { IFSPLogo } from "@/components/IFSPLogo";
@@ -21,9 +22,9 @@ export default function HomePage() {
   }
 
   return (
-    <main className="game-mobile-bg min-h-screen px-4 py-5 text-white sm:px-6 lg:px-8">
-      <section className="mx-auto grid min-h-[calc(100vh-2.5rem)] w-full max-w-[1500px] overflow-hidden rounded-[2.2rem] border-2 border-white/15 bg-green-950/45 shadow-soft backdrop-blur lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex min-h-[calc(100vh-2.5rem)] flex-col p-5 sm:p-8 lg:p-12">
+    <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-6 lg:px-8">
+      <section className="mx-auto grid h-full w-full max-w-[1500px] overflow-hidden rounded-[2.2rem] border-2 border-white/15 bg-green-950/45 shadow-soft backdrop-blur lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex min-h-0 flex-col overflow-y-auto p-5 sm:p-8 lg:p-12">
           <div className="flex items-center justify-between gap-3">
             <GameButtonLink href="/sobre" icon="☰" variant="white" className="min-h-12 w-14 px-0 py-0" aria-label="Abrir informações">
               <span className="sr-only">Menu</span>
@@ -83,7 +84,7 @@ export default function HomePage() {
           <p className="mt-auto pt-8 text-center text-sm font-bold text-white/60 sm:text-left">Protótipo acadêmico · IFSP</p>
         </div>
 
-        <div className="speed-lines relative flex min-h-[420px] items-center p-5 sm:p-8 lg:min-h-full">
+        <div className="speed-lines relative hidden min-h-0 items-center overflow-hidden p-5 sm:p-8 lg:flex">
           <div className="absolute inset-x-8 top-8 flex justify-between text-6xl font-black text-white/10" aria-hidden="true">
             <span>+</span>
             <span>×</span>
@@ -106,8 +107,8 @@ export default function HomePage() {
                   <span className="absolute left-4 top-3 max-w-[45%] truncate font-black text-white">{name}</span>
                   <span className="absolute right-14 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-900">{[8, 7, 5, 4][index]} pts</span>
                   <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-ifGreen/45 to-flagYellow/25" style={{ width: `${[82, 68, 48, 34][index]}%` }} />
-                  <span className="absolute bottom-2 text-5xl drop-shadow-lg" style={{ left: `${[72, 58, 40, 27][index]}%` }}>
-                    🏎️
+                  <span className="absolute bottom-3 drop-shadow-lg" style={{ left: `${[72, 58, 40, 27][index]}%` }}>
+                    <Car2D color={["#2f9e41", "#2563eb", "#f97316", "#ec4899"][index]} model={index === 1 ? "formula" : index === 2 ? "kart" : "turbo"} sticker={index === 0 ? "if" : "star"} className="scale-125" />
                   </span>
                   <span className="checkered absolute bottom-0 right-0 top-0 w-12 opacity-90" />
                 </div>
