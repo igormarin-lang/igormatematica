@@ -102,6 +102,92 @@ select {
   pointer-events: none;
 }
 
+.game-stage-bg {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(85, 201, 107, 0.42), transparent 28rem),
+    radial-gradient(circle at 12% 90%, rgba(250, 204, 21, 0.18), transparent 22rem),
+    radial-gradient(circle at 92% 18%, rgba(6, 182, 212, 0.12), transparent 20rem),
+    linear-gradient(145deg, #03170a 0%, #064e3b 48%, #010804 100%);
+}
+
+.game-stage-bg::before {
+  content: "+  -  ×  ÷  =  1  2  3  4  5  ( )";
+  position: fixed;
+  inset: -7rem;
+  z-index: -2;
+  color: rgba(255, 255, 255, 0.06);
+  font-size: clamp(4rem, 11vw, 9rem);
+  font-weight: 900;
+  letter-spacing: 0.35rem;
+  line-height: 1.3;
+  transform: rotate(-9deg);
+  pointer-events: none;
+}
+
+.game-stage-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(115deg, transparent 0 24%, rgba(255,255,255,.09) 24% 25%, transparent 25% 56%, rgba(255,255,255,.06) 56% 57%, transparent 57%),
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: auto, 36px 36px, 36px 36px;
+  mask-image: radial-gradient(circle at center, black, transparent 86%);
+  pointer-events: none;
+}
+
+.game-window {
+  animation: game-window-in 220ms ease-out both;
+}
+
+.game-window-in {
+  animation: game-window-in 180ms ease-out both;
+}
+
+@keyframes game-window-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.game-loading-car {
+  animation: loading-car-drive 1.25s ease-in-out infinite;
+}
+
+.game-loading-bar {
+  animation: loading-bar 1.25s ease-in-out infinite;
+}
+
+@keyframes loading-car-drive {
+  0% {
+    transform: translateX(-16px);
+  }
+  50% {
+    transform: translateX(150px);
+  }
+  100% {
+    transform: translateX(330px);
+  }
+}
+
+@keyframes loading-bar {
+  0%, 100% {
+    transform: translateX(-80%);
+  }
+  50% {
+    transform: translateX(120%);
+  }
+}
+
 .game-title {
   color: var(--game-yellow);
   text-shadow:

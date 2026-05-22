@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/Button";
+import { useState } from "react";
 import { Car2D } from "@/components/Car2D";
 import type { PlayerWithAnswered } from "@/types/game";
 
@@ -13,30 +13,46 @@ export function TeacherPlayerControls({
   onKick: (player: PlayerWithAnswered) => void;
   onResetScore: (player: PlayerWithAnswered) => void;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
-      <div className="flex items-center justify-between gap-3">
+    <div className="relative rounded-2xl bg-green-50 p-2.5 ring-1 ring-green-950/10">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <Car2D color={player.car_color} model={player.car_model} sticker={player.car_sticker} className="scale-75" />
+          <Car2D color={player.car_color} model={player.car_model} sticker={player.car_sticker} className="scale-[.68]" />
           <div className="min-w-0">
-            <p className="truncate font-black">{player.name}</p>
-            <p className="text-xs font-bold text-slate-500">
-              {player.score} pts · {player.correct_answers} acertos · {player.status ?? "active"}
+            <p className="truncate text-sm font-black">{player.name}</p>
+            <p className="text-[11px] font-bold text-green-900/65">
+              {player.score} pts · {player.correct_answers} acertos
             </p>
           </div>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-black ${player.answered_current_round ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+        <button
+          type="button"
+          aria-label={`Ações de ${player.name}`}
+          onClick={() => setOpen((current) => !current)}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-green-950 bg-white text-lg font-black text-green-950 shadow-[0_3px_0_rgba(0,0,0,.2)]"
+        >
+          …
+        </button>
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${player.answered_current_round ? "bg-green-200 text-green-800" : "bg-white text-green-900/60"}`}>
           {player.answered_current_round ? "respondeu" : "aguardando"}
         </span>
+        <span className="text-[10px] font-black uppercase text-green-900/45">{player.status ?? "active"}</span>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <Button variant="quiet" className="min-h-10 px-3 py-2 text-xs" onClick={() => onResetScore(player)}>
-          Zerar
-        </Button>
-        <Button variant="primary" className="min-h-10 px-3 py-2 text-xs" onClick={() => onKick(player)}>
-          Remover
-        </Button>
-      </div>
+
+      {open ? (
+        <div className="absolute right-2 top-12 z-20 grid w-40 gap-1 rounded-2xl border-2 border-green-950 bg-white p-2 text-sm font-black text-green-950 shadow-xl">
+          <button type="button" className="rounded-xl px-3 py-2 text-left hover:bg-green-50" onClick={() => onResetScore(player)}>
+            Zerar pontos
+          </button>
+          <button type="button" className="rounded-xl px-3 py-2 text-left text-raceRed hover:bg-red-50" onClick={() => onKick(player)}>
+            Remover
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -67,26 +67,26 @@ export function StudentCustomizationStepper({
   }
 
   return (
-    <section className="mx-auto grid h-full min-h-0 w-full max-w-[1280px] flex-1 gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-      <aside className="min-h-0 rounded-[2rem] border-2 border-white/15 bg-green-950/78 p-4 text-center text-white shadow-soft backdrop-blur sm:p-5">
+    <section className="mx-auto grid h-full min-h-0 w-full max-w-[1280px] flex-1 gap-3 lg:grid-cols-[0.85fr_1.15fr]">
+      <aside className="min-h-0 rounded-[1.7rem] border-2 border-white/15 bg-green-950/78 p-3 text-center text-white shadow-soft backdrop-blur sm:p-4">
         <div className="flex items-start justify-between gap-3 text-left">
           <div>
             <p className="text-xs font-black uppercase tracking-wide text-flagYellow">Garagem do aluno</p>
-            <h1 className="game-title mt-1 text-3xl font-black leading-none sm:text-5xl">{title}</h1>
-            <p className="mt-2 max-w-xl text-sm font-semibold text-white/75 sm:text-base">{subtitle}</p>
+            <h1 className="game-title mt-1 text-2xl font-black leading-none sm:text-4xl">{title}</h1>
+            <p className="mt-2 hidden max-w-xl text-sm font-semibold text-white/75 sm:block">{subtitle}</p>
           </div>
           <span className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase text-white/80">
             {step + 1}/{steps.length}
           </span>
         </div>
-        <div className="mt-4 h-[min(44vh,23rem)] min-h-64">
+        <div className="mt-3 h-[min(32vh,17rem)] min-h-52 lg:h-[min(44vh,23rem)] lg:min-h-64">
           <CarPreview3D
             color={value.carColor}
             model={value.carModel}
             sticker={value.carSticker}
             celebration={value.celebrationEmoji}
             playerName={value.name || "Seu carrinho"}
-            size="large"
+            size="md"
           />
         </div>
       </aside>

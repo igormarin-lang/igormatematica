@@ -14,6 +14,9 @@ import { Ranking } from "@/components/Ranking";
 import { StatCard } from "@/components/StatCard";
 import { StudentCustomizer, type StudentCustomization } from "@/components/StudentCustomizer";
 import { Timer } from "@/components/Timer";
+import { GameAppShell } from "@/components/game/GameAppShell";
+import { GameTopBar } from "@/components/game/GameTopBar";
+import { GameWindow } from "@/components/game/GameWindow";
 import { GameHeaderCompact } from "@/components/layout/GameHeaderCompact";
 import { useGameState } from "@/lib/useGameState";
 import type { GameState, Player } from "@/types/game";
@@ -66,6 +69,13 @@ export function PlayerSession({ code }: { code: string }) {
     const savedPlayerId = window.localStorage.getItem(storageKey);
     if (savedPlayerId) setPlayerId(savedPlayerId);
   }, [storageKey]);
+
+  useEffect(() => {
+    const savedName = window.localStorage.getItem("corrida-pilot-name");
+    if (!savedName) return;
+    setName(savedName);
+    setCustomization((current) => (current.name ? current : { ...current, name: savedName }));
+  }, []);
 
   const me = state?.players.find((player) => player.id === playerId) ?? null;
   const removedMe = state?.removedPlayers.find((player) => player.id === playerId) ?? null;
@@ -158,22 +168,24 @@ export function PlayerSession({ code }: { code: string }) {
 
   if (removedMe) {
     return (
-      <main className="game-mobile-bg grid min-h-screen place-items-center px-4 py-5 text-white">
-        <div className="max-w-xl rounded-[2rem] border-2 border-white/15 bg-white p-6 text-center text-green-950 shadow-soft">
+      <GameAppShell>
+        <GameWindow compact className="max-w-2xl">
+          <div className="m-auto max-w-xl rounded-[2rem] border-2 border-white/15 bg-white p-6 text-center text-green-950 shadow-soft">
           <h1 className="text-3xl font-black">Você foi removido da corrida pelo professor.</h1>
           <p className="mt-3 font-bold text-slate-600">Fale com o professor se precisar entrar novamente.</p>
           <Link href="/" className="mt-6 inline-flex rounded-2xl bg-ifGreen px-5 py-3 font-black text-white">
             Voltar ao início
           </Link>
-        </div>
-      </main>
+          </div>
+        </GameWindow>
+      </GameAppShell>
     );
   }
 
   if (!me) {
     return (
-      <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 sm:px-5">
-        <div className="mx-auto flex h-full w-full max-w-[1280px] flex-col gap-4">
+      <GameAppShell>
+        <GameWindow>
           <div className="flex shrink-0 items-center justify-between gap-3">
             <Link href="/" className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-ifGreen shadow-sm ring-1 ring-slate-200">
               Trocar código
@@ -194,23 +206,23 @@ export function PlayerSession({ code }: { code: string }) {
             title="Crie seu piloto"
             subtitle="Em poucos passos, escolha nome, carrinho, cor e comemoração."
           />
-        </div>
-      </main>
+        </GameWindow>
+      </GameAppShell>
     );
   }
 
   if (state?.session.status === "waiting") {
     if (!editingWaiting) {
       return (
-        <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-5">
-          <section className="mx-auto grid h-full max-w-[1280px] grid-rows-[auto_minmax(0,1fr)] gap-4">
+        <GameAppShell>
+          <GameWindow>
             <GameHeaderCompact
               title="Seu carrinho está pronto"
               subtitle="Aguardando largada"
               right={<span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase text-flagYellow">Sessão {code}</span>}
             />
 
-            <div className="grid min-h-0 gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="mt-4 grid min-h-0 flex-1 gap-4 overflow-y-auto lg:grid-cols-[0.95fr_1.05fr] lg:overflow-hidden">
               <div className="min-h-0">
                 <CarPreview3D
                   color={me.car_color}
@@ -248,14 +260,14 @@ export function PlayerSession({ code }: { code: string }) {
                 </GamePanel>
               </div>
             </div>
-          </section>
-        </main>
+          </GameWindow>
+        </GameAppShell>
       );
     }
 
     return (
-      <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-5">
-        <section className="mx-auto grid h-full max-w-[1280px] grid-rows-[auto_minmax(0,1fr)] gap-4">
+      <GameAppShell>
+        <GameWindow>
           <div className="rounded-[2rem] border-2 border-white/15 bg-green-950/80 p-5 text-center shadow-soft">
             <p className="text-sm font-black uppercase text-flagYellow">Aguardando largada</p>
             <h1 className="mt-2 text-3xl font-black sm:text-5xl">Seu carrinho está pronto na largada.</h1>
@@ -274,15 +286,22 @@ export function PlayerSession({ code }: { code: string }) {
             lockName
             onCancel={() => setEditingWaiting(false)}
           />
-        </section>
-      </main>
+        </GameWindow>
+      </GameAppShell>
     );
   }
 
   return (
-    <main className="game-mobile-bg h-[100dvh] overflow-hidden px-4 py-4 text-white sm:px-5">
-      <section className="mx-auto grid h-full max-w-[1280px] gap-4 overflow-hidden lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
+    <GameAppShell>
+      <GameWindow>
+        <GameTopBar
+          title="Corrida das Expressões"
+          subtitle={state?.session.current_round ? `Pergunta ${state.session.current_round} de ${state.session.total_rounds}` : "Corrida em andamento"}
+          left={<span className="rounded-full bg-white/10 px-3 py-2 text-xs font-black uppercase text-flagYellow">{code}</span>}
+          right={<Timer endsAt={state?.session.question_ends_at ?? null} />}
+        />
+      <section className="mt-4 grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[0.72fr_1fr]">
+        <div className="hidden min-h-0 space-y-4 overflow-y-auto pr-1 lg:block">
           <CarPreview3D
             color={me.car_color}
             model={me.car_model}
@@ -331,7 +350,25 @@ export function PlayerSession({ code }: { code: string }) {
           ) : null}
         </div>
 
-        <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
+        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
+          <div className="rounded-[1.5rem] border-2 border-white/15 bg-green-950/82 p-3 text-white shadow-soft lg:hidden">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[11px] font-black uppercase text-flagYellow">Sessão {code}</p>
+                <h1 className="truncate text-xl font-black">{me.name}</h1>
+              </div>
+              <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase">
+                {myRank + 1 || "-"}º · {me.score} pts
+              </span>
+            </div>
+            <div className="mt-3 race-lane relative h-20 overflow-hidden rounded-[1.25rem] border-2 border-white/15">
+              <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-pitGreen/50 to-flagYellow/30 transition-all" style={{ width: `${progress * 100}%` }} />
+              <span className="absolute bottom-3 drop-shadow-lg transition-all duration-700" style={{ left: `calc(10px + ${progress * 100}% - ${progress * 58}px)` }}>
+                <Car2D color={me.car_color} model={me.car_model} sticker={me.car_sticker} className="scale-105" />
+              </span>
+              <span className="checkered absolute bottom-0 right-0 top-0 w-10" />
+            </div>
+          </div>
           <QuestionCard question={state?.question ?? null} status={state?.session.status ?? "waiting"} />
 
           <form onSubmit={sendAnswer} className="rounded-[2rem] border-2 border-green-950/15 bg-white p-5 text-green-950 shadow-soft backdrop-blur">
@@ -383,6 +420,7 @@ export function PlayerSession({ code }: { code: string }) {
           ) : null}
         </div>
       </section>
-    </main>
+      </GameWindow>
+    </GameAppShell>
   );
 }
