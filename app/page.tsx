@@ -45,7 +45,7 @@ export default function HomePage() {
 
   return (
     <GameAppShell>
-      <GameWindow>
+      <GameWindow compact>
         <GameTopBar
           subtitle="Resolva. Acelere. Vença."
           left={
@@ -60,16 +60,16 @@ export default function HomePage() {
           }
         />
 
-        <div className="mt-4 grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[0.9fr_0.82fr_0.9fr]">
-          <section className="flex min-h-0 flex-col rounded-[1.8rem] border-2 border-white/15 bg-green-950/58 p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+        <div className="mt-2 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden sm:mt-4 sm:gap-4 lg:grid lg:grid-cols-[0.9fr_0.82fr_0.9fr]">
+          <section className="flex min-h-0 flex-1 flex-col rounded-[1.25rem] border-2 border-white/15 bg-green-950/58 p-2.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)] sm:rounded-[1.8rem] sm:p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-black uppercase text-flagYellow">Seu piloto</p>
               <IFSPLogo variant="white" compact className="hidden sm:inline-flex" />
             </div>
-            <div className="mt-3 min-h-0 flex-1">
-              <CarPreview3D color="#2f9e41" model="turbo" sticker="if" playerName={pilotName || "Piloto"} size="md" />
+            <div className="mt-2 min-h-0 flex-1 sm:mt-3 [&>div]:h-full">
+              <CarPreview3D color="#2f9e41" model="turbo" sticker="if" playerName={pilotName || "Piloto"} size="sm" />
             </div>
-            <div className="mt-3">
+            <div className="mt-3 hidden sm:block">
               <label className="mb-2 block text-sm font-black uppercase text-white/82" htmlFor="pilot-name">
                 Nome de piloto
               </label>
@@ -84,8 +84,8 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="flex min-h-0 flex-col justify-center gap-3 rounded-[1.8rem] border-2 border-white/15 bg-white/12 p-4 backdrop-blur">
-            <form onSubmit={enterRace} className="grid gap-3">
+          <section className="flex shrink-0 flex-col justify-center gap-2 rounded-[1.25rem] border-2 border-white/15 bg-white/12 p-2.5 backdrop-blur sm:gap-3 sm:rounded-[1.8rem] sm:p-4 lg:min-h-0 lg:shrink lg:justify-center">
+            <form onSubmit={enterRace} className="grid gap-2 sm:gap-3">
               <label className="text-center text-sm font-black uppercase text-flagYellow" htmlFor="session-code">
                 Código da sala
               </label>
@@ -96,9 +96,9 @@ export default function HomePage() {
                 placeholder="AB12"
                 maxLength={4}
                 aria-label="Código da sala"
-                className="h-20 text-4xl uppercase tracking-widest"
+                className="h-16 text-3xl uppercase tracking-widest sm:h-20 sm:text-4xl"
               />
-              <GameButton className="w-full text-lg" type="submit" icon="🏁" disabled={sanitizeCode(code).length !== 4}>
+              <GameButton className="w-full text-base sm:text-lg" type="submit" icon="🏁" disabled={sanitizeCode(code).length !== 4}>
                 Jogar
               </GameButton>
             </form>
@@ -106,7 +106,7 @@ export default function HomePage() {
             <GameButtonLink href="/professor/login" variant="green" icon="▣" className="w-full">
               Criar sala
             </GameButtonLink>
-            <GameButton type="button" variant="white" icon="≡" className="w-full" onClick={() => setModal("rooms")}>
+            <GameButton type="button" variant="white" icon="≡" className="hidden w-full sm:inline-flex" onClick={() => setModal("rooms")}>
               Salas
             </GameButton>
           </section>
@@ -133,7 +133,7 @@ export default function HomePage() {
           </aside>
         </div>
 
-        <footer className="mt-3 flex shrink-0 items-center justify-center gap-3 text-xs font-black uppercase text-white/55">
+        <footer className="mt-2 hidden shrink-0 items-center justify-center gap-3 text-xs font-black uppercase text-white/55 sm:flex lg:hidden">
           <button type="button" onClick={() => setModal("how")} className="lg:hidden">
             Como jogar
           </button>

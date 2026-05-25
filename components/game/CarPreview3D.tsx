@@ -49,8 +49,8 @@ class PreviewErrorBoundary extends Component<{ fallback: ReactNode; children: Re
 export function CarPreview3D({ color, model, sticker, isCelebrating = false, isActive = true, size = "lg", playerName, celebration }: CarPreview3DProps) {
   const carColor = safeCarColor(color);
   const carModel = safeCarModel(model);
-  const heightClass = size === "sm" ? "min-h-44 sm:min-h-56" : size === "md" ? "min-h-56 sm:min-h-72" : "min-h-64 sm:min-h-[23rem]";
-  const canvasClass = size === "sm" ? "h-36 sm:h-[18.5rem]" : size === "md" ? "h-48 sm:h-[18.5rem]" : "h-56 sm:h-[18.5rem]";
+  const heightClass = size === "sm" ? "min-h-40 sm:min-h-56" : size === "md" ? "min-h-56 sm:min-h-72" : "min-h-64 sm:min-h-[23rem]";
+  const canvasClass = size === "sm" ? "h-32 sm:h-[18.5rem]" : size === "md" ? "h-48 sm:h-[18.5rem]" : "h-56 sm:h-[18.5rem]";
   const label = modelLabel[carModel] ?? "Clássico";
 
   return (
