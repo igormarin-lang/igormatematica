@@ -140,6 +140,24 @@ select {
   pointer-events: none;
 }
 
+.game-stage-shell {
+  padding:
+    max(0.6rem, env(safe-area-inset-top))
+    max(0.6rem, env(safe-area-inset-right))
+    max(0.6rem, env(safe-area-inset-bottom))
+    max(0.6rem, env(safe-area-inset-left));
+}
+
+@media (min-width: 640px) {
+  .game-stage-shell {
+    padding:
+      max(1rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right))
+      max(1rem, env(safe-area-inset-bottom))
+      max(1rem, env(safe-area-inset-left));
+  }
+}
+
 .game-window {
   animation: game-window-in 220ms ease-out both;
 }

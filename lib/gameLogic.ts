@@ -1,6 +1,8 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { generateQuestions } from "@/lib/mathQuestions";
 import { buildGameState, createSessionCode, sanitizeCode, sanitizePlayerName } from "@/lib/session";
+import { closeSession, isRoomActive, sessionExpiresAt, touchSessionActivity, updateSessionWithActivity } from "@/lib/sessionLifecycle";
+import { normalizeStudentCustomization, playerToStudentCustomization, toPlayerColumns } from "@/lib/studentCustomization";
 import type { Answer, GameState, Player, Question, Session } from "@/types/game";
 
 const QUESTION_SECONDS = 20;
@@ -31,6 +33,10 @@ async function getSessionByCode(rawCode: string) {
 
   if (error) throw error;
   if (!session) throw new Error("Sessão não encontrada.");
+  if (session.status !== "finished" && !isRoomActive(session)) {
+    await closeSession(supabase, session.id, "inactive");
+    throw new Error("Sala expirada por inatividade.");
+  }
   return session;
 }
 
@@ -38,14 +44,31 @@ export async function createSession(totalRounds: number) {
   const supabase = createServiceClient();
   const rounds = [5, 10, 15, 20].includes(totalRounds) ? totalRounds : 10;
   const code = await uniqueSessionCode(supabase);
+  const now = new Date();
 
   let { data: session, error } = await supabase
     .from("sessions")
-    .insert({ code, total_rounds: rounds, status: "waiting", current_round: 0, entries_locked: false })
+    .insert({
+      code,
+      total_rounds: rounds,
+      status: "waiting",
+      current_round: 0,
+      entries_locked: false,
+      last_activity_at: now.toISOString(),
+      expires_at: sessionExpiresAt("waiting", now).toISOString(),
+      ended_at: null,
+      close_reason: null
+    })
     .select("*")
     .single<Session>();
 
-  if (isMissingColumn(error, "entries_locked")) {
+  if (
+    isMissingColumn(error, "entries_locked") ||
+    isMissingColumn(error, "last_activity_at") ||
+    isMissingColumn(error, "expires_at") ||
+    isMissingColumn(error, "ended_at") ||
+    isMissingColumn(error, "close_reason")
+  ) {
     const fallback = await supabase
       .from("sessions")
       .insert({ code, total_rounds: rounds, status: "waiting", current_round: 0 })
@@ -136,11 +159,16 @@ export async function joinSession(
   const name = sanitizePlayerName(rawName);
 
   if (!name) throw new Error("Digite seu nome.");
+  const normalizedCustomization = normalizeStudentCustomization({ ...customization, name });
 
   const { data: session, error } = await supabase.from("sessions").select("*").eq("code", code).maybeSingle<Session>();
   if (error) throw error;
   if (!session) throw new Error("Código da sessão não encontrado.");
   if (session.status === "finished") throw new Error("A corrida já terminou.");
+  if (!isRoomActive(session)) {
+    await closeSession(supabase, session.id, "inactive");
+    throw new Error("Sala expirada por inatividade.");
+  }
   if (session.status === "paused") throw new Error("A corrida está pausada pelo professor.");
   if (session.status === "running" && session.entries_locked) {
     throw new Error("A corrida já começou. Peça ao professor para liberar sua entrada.");
@@ -151,17 +179,27 @@ export async function joinSession(
     .insert({
       session_id: session.id,
       name,
-      car_color: customization.carColor ?? "#2f9e41",
-      car_model: customization.carModel ?? "classic",
-      car_sticker: customization.carSticker ?? "star",
-      celebration_emoji: customization.celebrationEmoji ?? "🎉",
-      student_theme: customization.studentTheme ?? "if-green",
+      ...toPlayerColumns(normalizedCustomization),
       status: "active"
     })
     .select("*")
     .single<Player>();
 
-  if (playerError && (isMissingColumn(playerError, "car_color") || isMissingColumn(playerError, "status"))) {
+  if (playerError && isMissingColumn(playerError, "status") && !isMissingColumn(playerError, "car_color")) {
+    const fallback = await supabase
+      .from("players")
+      .insert({
+        session_id: session.id,
+        name,
+        ...toPlayerColumns(normalizedCustomization)
+      })
+      .select("*")
+      .single<Player>();
+    player = fallback.data;
+    playerError = fallback.error;
+  }
+
+  if (playerError && isMissingColumn(playerError, "car_color")) {
     const fallback = await supabase.from("players").insert({ session_id: session.id, name }).select("*").single<Player>();
     player = fallback.data;
     playerError = fallback.error;
@@ -169,6 +207,7 @@ export async function joinSession(
 
   if (playerError) throw playerError;
   if (!player) throw new Error("Não foi possível criar o aluno.");
+  await touchSessionActivity(supabase, session);
   return player;
 }
 
@@ -184,25 +223,24 @@ export async function startSession(rawCode: string) {
   const endsAt = new Date(now.getTime() + QUESTION_SECONDS * 1000);
   const nextRound = state.session.current_round > 0 ? state.session.current_round : 1;
 
-  const { error } = await supabase
-    .from("sessions")
-    .update({
+  await updateSessionWithActivity(
+    supabase,
+    state.session.id,
+    {
       status: "running",
       current_round: nextRound,
       question_started_at: now.toISOString(),
       question_ends_at: endsAt.toISOString()
-    })
-    .eq("id", state.session.id);
-
-  if (error) throw error;
+    },
+    "running"
+  );
   return getStateBySessionId(state.session.id);
 }
 
 export async function pauseSession(rawCode: string) {
   const supabase = createServiceClient();
   const state = await getStateByCode(rawCode);
-  const { error } = await supabase.from("sessions").update({ status: "paused" }).eq("id", state.session.id);
-  if (error) throw error;
+  await updateSessionWithActivity(supabase, state.session.id, { status: "paused" }, "paused");
   return getStateBySessionId(state.session.id);
 }
 
@@ -223,6 +261,7 @@ export async function resetSession(rawCode: string) {
     throw resetPlayers.error;
   }
   await supabase.from("questions").insert(questions);
+  const now = new Date();
 
   let { error } = await supabase
     .from("sessions")
@@ -232,11 +271,21 @@ export async function resetSession(rawCode: string) {
       winner_player_id: null,
       question_started_at: null,
       question_ends_at: null,
-      entries_locked: false
+      entries_locked: false,
+      last_activity_at: now.toISOString(),
+      expires_at: sessionExpiresAt("waiting", now).toISOString(),
+      ended_at: null,
+      close_reason: null
     })
     .eq("id", state.session.id);
 
-  if (isMissingColumn(error, "entries_locked")) {
+  if (
+    isMissingColumn(error, "entries_locked") ||
+    isMissingColumn(error, "last_activity_at") ||
+    isMissingColumn(error, "expires_at") ||
+    isMissingColumn(error, "ended_at") ||
+    isMissingColumn(error, "close_reason")
+  ) {
     const fallback = await supabase
       .from("sessions")
       .update({
@@ -258,16 +307,7 @@ export async function finishSession(rawCode: string) {
   const supabase = createServiceClient();
   const state = await getStateByCode(rawCode);
   const winner = state.ranking[0] ?? null;
-  const { error } = await supabase
-    .from("sessions")
-    .update({
-      status: "finished",
-      winner_player_id: winner?.id ?? null,
-      question_ends_at: null
-    })
-    .eq("id", state.session.id);
-
-  if (error) throw error;
+  await closeSession(supabase, state.session.id, "finished", { winner_player_id: winner?.id ?? null });
   return getStateBySessionId(state.session.id);
 }
 
@@ -323,6 +363,7 @@ export async function submitAnswer(rawCode: string, playerId: string, value: unk
     if (playerError) throw playerError;
   }
 
+  await touchSessionActivity(supabase, state.session);
   const updatedState = await getStateBySessionId(state.session.id);
   if (updatedState.answeredCount >= updatedState.players.length) {
     await advanceRound(rawCode);
@@ -344,16 +385,16 @@ export async function advanceRound(rawCode: string) {
 
   const now = new Date();
   const endsAt = new Date(now.getTime() + QUESTION_SECONDS * 1000);
-  const { error } = await supabase
-    .from("sessions")
-    .update({
+  await updateSessionWithActivity(
+    supabase,
+    state.session.id,
+    {
       current_round: state.session.current_round + 1,
       question_started_at: now.toISOString(),
       question_ends_at: endsAt.toISOString()
-    })
-    .eq("id", state.session.id);
-
-  if (error) throw error;
+    },
+    "running"
+  );
   return getStateBySessionId(state.session.id);
 }
 
@@ -382,27 +423,26 @@ export async function updatePlayerCustomization(
   if ((player.status ?? "active") !== "active") throw new Error("Você foi removido da corrida pelo professor.");
   if (state.session.status !== "waiting") throw new Error("A personalização fica bloqueada depois da largada.");
 
+  const normalizedCustomization = normalizeStudentCustomization(
+    { name: player.name, ...customization },
+    playerToStudentCustomization(player)
+  );
+
   const { error } = await supabase
     .from("players")
-    .update({
-      car_color: customization.carColor ?? player.car_color ?? "#2f9e41",
-      car_model: customization.carModel ?? player.car_model ?? "classic",
-      car_sticker: customization.carSticker ?? player.car_sticker ?? "star",
-      celebration_emoji: customization.celebrationEmoji ?? player.celebration_emoji ?? "🎉",
-      student_theme: customization.studentTheme ?? player.student_theme ?? "if-green"
-    })
+    .update(toPlayerColumns(normalizedCustomization))
     .eq("id", player.id)
     .eq("session_id", state.session.id);
 
   if (error) throw error;
+  await touchSessionActivity(supabase, state.session);
   return getStateBySessionId(state.session.id);
 }
 
 export async function setEntriesLocked(rawCode: string, locked: boolean) {
   const supabase = createServiceClient();
   const state = await getStateByCode(rawCode);
-  const { error } = await supabase.from("sessions").update({ entries_locked: locked }).eq("id", state.session.id);
-  if (error) throw error;
+  await updateSessionWithActivity(supabase, state.session.id, { entries_locked: locked }, state.session.status);
   return getStateBySessionId(state.session.id);
 }
 
@@ -415,6 +455,7 @@ export async function kickPlayer(rawCode: string, playerId: string) {
     .eq("id", playerId)
     .eq("session_id", state.session.id);
   if (error) throw error;
+  await touchSessionActivity(supabase, state.session);
   return getStateBySessionId(state.session.id);
 }
 
@@ -428,5 +469,6 @@ export async function resetPlayerScore(rawCode: string, playerId: string) {
     .eq("id", playerId)
     .eq("session_id", state.session.id);
   if (error) throw error;
+  await touchSessionActivity(supabase, state.session);
   return getStateBySessionId(state.session.id);
 }

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export function FixedBottomActions({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`sticky bottom-0 z-20 -mx-5 mt-auto border-t border-green-950/10 bg-white/96 px-5 py-4 backdrop-blur ${className}`}>
+    <div className={`sticky bottom-0 z-20 -mx-4 mt-auto border-t border-green-950/10 bg-white/96 px-4 py-3 backdrop-blur sm:-mx-5 sm:px-5 sm:py-4 ${className}`}>
       {children}
     </div>
   );

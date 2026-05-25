@@ -12,6 +12,7 @@ import { GameModal } from "@/components/game/GameModal";
 import { GameTopBar } from "@/components/game/GameTopBar";
 import { GameWindow } from "@/components/game/GameWindow";
 import { RoomBrowser } from "@/components/game/RoomBrowser";
+import { defaultStudentCustomization, normalizeStudentCustomization } from "@/lib/studentCustomization";
 import { sanitizeCode } from "@/lib/session";
 
 export default function HomePage() {
@@ -27,7 +28,18 @@ export default function HomePage() {
   function enterRace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanCode = sanitizeCode(code);
-    window.localStorage.setItem("corrida-pilot-name", pilotName.trim());
+    const savedCustomization = window.localStorage.getItem("corrida-student-customization");
+    let baseCustomization = defaultStudentCustomization;
+    if (savedCustomization) {
+      try {
+        baseCustomization = normalizeStudentCustomization(JSON.parse(savedCustomization));
+      } catch {
+        window.localStorage.removeItem("corrida-student-customization");
+      }
+    }
+    const nextCustomization = normalizeStudentCustomization({ ...baseCustomization, name: pilotName.trim() });
+    window.localStorage.setItem("corrida-pilot-name", nextCustomization.name);
+    window.localStorage.setItem("corrida-student-customization", JSON.stringify(nextCustomization));
     if (cleanCode.length === 4) router.push(`/sessao/${cleanCode}`);
   }
 

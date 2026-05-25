@@ -67,19 +67,19 @@ export function StudentCustomizationStepper({
   }
 
   return (
-    <section className="mx-auto grid h-full min-h-0 w-full max-w-[1280px] flex-1 gap-3 lg:grid-cols-[0.85fr_1.15fr]">
-      <aside className="min-h-0 rounded-[1.7rem] border-2 border-white/15 bg-green-950/78 p-3 text-center text-white shadow-soft backdrop-blur sm:p-4">
+    <section className="mx-auto grid h-full min-h-0 w-full max-w-[1280px] flex-1 grid-rows-[minmax(0,0.42fr)_minmax(0,0.58fr)] gap-2 sm:gap-3 lg:grid-cols-[0.85fr_1.15fr] lg:grid-rows-none">
+      <aside className="min-h-0 overflow-hidden rounded-[1.4rem] border-2 border-white/15 bg-green-950/78 p-2.5 text-center text-white shadow-soft backdrop-blur sm:rounded-[1.7rem] sm:p-4">
         <div className="flex items-start justify-between gap-3 text-left">
           <div>
             <p className="text-xs font-black uppercase tracking-wide text-flagYellow">Garagem do aluno</p>
-            <h1 className="game-title mt-1 text-2xl font-black leading-none sm:text-4xl">{title}</h1>
+            <h1 className="game-title mt-1 text-xl font-black leading-none sm:text-4xl">{title}</h1>
             <p className="mt-2 hidden max-w-xl text-sm font-semibold text-white/75 sm:block">{subtitle}</p>
           </div>
           <span className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase text-white/80">
             {step + 1}/{steps.length}
           </span>
         </div>
-        <div className="mt-3 h-[min(32vh,17rem)] min-h-52 lg:h-[min(44vh,23rem)] lg:min-h-64">
+        <div className="mt-2 h-[calc(100%-4.5rem)] min-h-0 sm:mt-3 lg:h-[min(44vh,23rem)] lg:min-h-64">
           <CarPreview3D
             color={value.carColor}
             model={value.carModel}
@@ -91,10 +91,10 @@ export function StudentCustomizationStepper({
         </div>
       </aside>
 
-      <div className="flex min-h-0 flex-col overflow-hidden rounded-[2rem] border-2 border-green-950/15 bg-white text-green-950 shadow-soft">
-        <div className="border-b border-green-950/10 bg-green-50 px-5 py-4">
+      <div className="flex min-h-0 flex-col overflow-hidden rounded-[1.4rem] border-2 border-green-950/15 bg-white text-green-950 shadow-soft sm:rounded-[2rem]">
+        <div className="border-b border-green-950/10 bg-green-50 px-4 py-3 sm:px-5 sm:py-4">
           <p className="text-xs font-black uppercase tracking-wide text-ifGreen">Etapa {step + 1}</p>
-          <h2 className="text-2xl font-black">{currentStep}</h2>
+          <h2 className="text-xl font-black sm:text-2xl">{currentStep}</h2>
           {locked ? <p className="mt-2 rounded-2xl bg-flagYellow/35 p-3 text-sm font-black text-green-950">A corrida já começou. Seu carrinho foi travado para esta partida.</p> : null}
         </div>
 

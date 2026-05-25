@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Car2D } from "@/components/Car2D";
 import { CarPreview3D } from "@/components/CarPreview3D";
@@ -18,6 +18,7 @@ import { GameAppShell } from "@/components/game/GameAppShell";
 import { GameTopBar } from "@/components/game/GameTopBar";
 import { GameWindow } from "@/components/game/GameWindow";
 import { GameHeaderCompact } from "@/components/layout/GameHeaderCompact";
+import { defaultStudentCustomization, normalizeStudentCustomization, playerToStudentCustomization } from "@/lib/studentCustomization";
 import { useGameState } from "@/lib/useGameState";
 import type { GameState, Player } from "@/types/game";
 
@@ -43,27 +44,30 @@ type StateResponse = {
   message?: string;
 };
 
-const defaultCustomization: StudentCustomization = {
-  name: "",
-  carColor: "#2f9e41",
-  carModel: "classic",
-  carSticker: "star",
-  celebrationEmoji: "🎉",
-  studentTheme: "if-green"
-};
+const customizationStorageKey = "corrida-student-customization";
 
 export function PlayerSession({ code }: { code: string }) {
   const [name, setName] = useState("");
-  const [customization, setCustomization] = useState<StudentCustomization>(defaultCustomization);
+  const [customization, setCustomization] = useState<StudentCustomization>(defaultStudentCustomization);
   const [playerId, setPlayerId] = useState("");
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState<{ text: string; type: "idle" | "correct" | "wrong" | "info" }>({ text: "", type: "idle" });
   const [loading, setLoading] = useState(false);
   const [savingCar, setSavingCar] = useState(false);
   const [editingWaiting, setEditingWaiting] = useState(false);
-  const [syncedWaitingPlayerId, setSyncedWaitingPlayerId] = useState("");
   const { state, setState, error } = useGameState(code);
   const storageKey = useMemo(() => `corrida-player-${code}`, [code]);
+  const customizationRef = useRef<StudentCustomization>(defaultStudentCustomization);
+
+  const persistLocalCustomization = useCallback((nextValue: Partial<StudentCustomization>) => {
+    const normalized = normalizeStudentCustomization(nextValue);
+    customizationRef.current = normalized;
+    setCustomization(normalized);
+    setName(normalized.name);
+    window.localStorage.setItem(customizationStorageKey, JSON.stringify(normalized));
+    if (normalized.name) window.localStorage.setItem("corrida-pilot-name", normalized.name);
+    return normalized;
+  }, []);
 
   useEffect(() => {
     const savedPlayerId = window.localStorage.getItem(storageKey);
@@ -71,40 +75,76 @@ export function PlayerSession({ code }: { code: string }) {
   }, [storageKey]);
 
   useEffect(() => {
+    const savedCustomization = window.localStorage.getItem(customizationStorageKey);
+    if (savedCustomization) {
+      try {
+        const parsed = JSON.parse(savedCustomization) as Partial<StudentCustomization>;
+        persistLocalCustomization(parsed);
+        return;
+      } catch {
+        window.localStorage.removeItem(customizationStorageKey);
+      }
+    }
+
     const savedName = window.localStorage.getItem("corrida-pilot-name");
     if (!savedName) return;
-    setName(savedName);
-    setCustomization((current) => (current.name ? current : { ...current, name: savedName }));
-  }, []);
+    persistLocalCustomization({ ...defaultStudentCustomization, name: savedName });
+  }, [persistLocalCustomization]);
 
   const me = state?.players.find((player) => player.id === playerId) ?? null;
   const removedMe = state?.removedPlayers.find((player) => player.id === playerId) ?? null;
   const myRank = state?.ranking.findIndex((player) => player.id === playerId) ?? -1;
   const canAnswer = Boolean(state?.session.status === "running" && me && !me.answered_current_round);
   const progress = state && me ? Math.min(1, me.position / state.session.total_rounds) : 0;
+  const myCustomization = me ? playerToStudentCustomization(me, customization) : customization;
+  const displayMe = me
+    ? {
+        ...me,
+        car_color: myCustomization.carColor,
+        car_model: myCustomization.carModel,
+        car_sticker: myCustomization.carSticker,
+        celebration_emoji: myCustomization.celebrationEmoji,
+        student_theme: myCustomization.studentTheme
+      }
+    : null;
 
   useEffect(() => {
-    if (!me || state?.session.status !== "waiting" || syncedWaitingPlayerId === me.id) return;
-    setCustomization({
-      name: me.name,
-      carColor: me.car_color ?? "#2f9e41",
-      carModel: String(me.car_model ?? "classic"),
-      carSticker: me.car_sticker ?? "star",
-      celebrationEmoji: me.celebration_emoji ?? "🎉",
-      studentTheme: String(me.student_theme ?? "if-green")
-    });
-    setSyncedWaitingPlayerId(me.id);
-  }, [me, state?.session.status, syncedWaitingPlayerId]);
+    if (!me || editingWaiting) return;
+    const remoteHasCustomization =
+      me.car_color !== undefined ||
+      me.car_model !== undefined ||
+      me.car_sticker !== undefined ||
+      me.celebration_emoji !== undefined ||
+      me.student_theme !== undefined;
+
+    if (!remoteHasCustomization) {
+      setName(me.name);
+      return;
+    }
+
+    persistLocalCustomization(playerToStudentCustomization(me, customizationRef.current));
+  }, [
+    editingWaiting,
+    me,
+    persistLocalCustomization
+  ]);
+
+  useEffect(() => {
+    if (!state || !playerId || me || removedMe) return;
+    window.localStorage.removeItem(storageKey);
+    setPlayerId("");
+  }, [me, playerId, removedMe, state, storageKey]);
 
   async function join(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     setLoading(true);
     setMessage({ text: "", type: "idle" });
+    const submittedCustomization = normalizeStudentCustomization({ ...customization, name: customization.name || name });
 
     const response = await fetch(`/api/sessions/${code}/join`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...customization, name: customization.name || name })
+      body: JSON.stringify(submittedCustomization)
     });
     const data = (await response.json()) as JoinResponse;
     setLoading(false);
@@ -115,8 +155,10 @@ export function PlayerSession({ code }: { code: string }) {
     }
 
     window.localStorage.setItem(storageKey, data.player.id);
+    window.localStorage.setItem("corrida-last-session-code", code);
     setPlayerId(data.player.id);
     setState(data.state);
+    persistLocalCustomization(playerToStudentCustomization(data.player, submittedCustomization));
     setEditingWaiting(false);
   }
 
@@ -124,10 +166,11 @@ export function PlayerSession({ code }: { code: string }) {
     if (!me) return;
     setSavingCar(true);
     setMessage({ text: "", type: "idle" });
+    const submittedCustomization = normalizeStudentCustomization(customization);
     const response = await fetch(`/api/sessions/${code}/players/${me.id}/customization`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(customization)
+      body: JSON.stringify(submittedCustomization)
     });
     const data = (await response.json()) as StateResponse;
     setSavingCar(false);
@@ -138,6 +181,7 @@ export function PlayerSession({ code }: { code: string }) {
     }
 
     setState(data.state);
+    persistLocalCustomization(submittedCustomization);
     setEditingWaiting(false);
     setMessage({ text: "Carrinho atualizado!", type: "correct" });
   }
@@ -160,7 +204,7 @@ export function PlayerSession({ code }: { code: string }) {
 
     setMessage(
       data.correct
-        ? { text: `Boa! Você acertou. ${me?.celebration_emoji ?? "🎉"} +${data.points} ponto(s).`, type: "correct" }
+        ? { text: `Boa! Você acertou. ${myCustomization.celebrationEmoji} +${data.points} ponto(s).`, type: "correct" }
         : { text: `Quase! Tente na próxima. ${data.correctAnswer !== null && data.correctAnswer !== undefined ? `Resposta correta: ${data.correctAnswer}.` : ""}`, type: "wrong" }
     );
     if (data.state) setState(data.state);
@@ -195,8 +239,7 @@ export function PlayerSession({ code }: { code: string }) {
           <StudentCustomizer
             value={customization}
             onChange={(next) => {
-              setCustomization(next);
-              setName(next.name);
+              persistLocalCustomization(next);
             }}
             onSubmit={() => {
               void join();
@@ -225,10 +268,10 @@ export function PlayerSession({ code }: { code: string }) {
             <div className="mt-4 grid min-h-0 flex-1 gap-4 overflow-y-auto lg:grid-cols-[0.95fr_1.05fr] lg:overflow-hidden">
               <div className="min-h-0">
                 <CarPreview3D
-                  color={me.car_color}
-                  model={me.car_model}
-                  sticker={me.car_sticker}
-                  celebration={me.celebration_emoji}
+                  color={myCustomization.carColor}
+                  model={myCustomization.carModel}
+                  sticker={myCustomization.carSticker}
+                  celebration={myCustomization.celebrationEmoji}
                   playerName={me.name}
                   size="large"
                 />
@@ -256,7 +299,7 @@ export function PlayerSession({ code }: { code: string }) {
                     <h2 className="text-xl font-black text-flagYellow">Pista de espera</h2>
                     <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase">Sessão {code}</span>
                   </div>
-                  <RaceTrack2D players={[me]} totalRounds={state.session.total_rounds} variant="compact" />
+                  <RaceTrack2D players={displayMe ? [displayMe] : []} totalRounds={state.session.total_rounds} variant="compact" />
                 </GamePanel>
               </div>
             </div>
@@ -275,7 +318,9 @@ export function PlayerSession({ code }: { code: string }) {
           </div>
           <StudentCustomizer
             value={customization}
-            onChange={setCustomization}
+            onChange={(next) => {
+              persistLocalCustomization(next);
+            }}
             onSubmit={() => void saveCar()}
             loading={savingCar}
             message={message.text || error}
@@ -303,10 +348,10 @@ export function PlayerSession({ code }: { code: string }) {
       <section className="mt-4 grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[0.72fr_1fr]">
         <div className="hidden min-h-0 space-y-4 overflow-y-auto pr-1 lg:block">
           <CarPreview3D
-            color={me.car_color}
-            model={me.car_model}
-            sticker={me.car_sticker}
-            celebration={me.celebration_emoji}
+            color={myCustomization.carColor}
+            model={myCustomization.carModel}
+            sticker={myCustomization.carSticker}
+            celebration={myCustomization.celebrationEmoji}
             success={message.type === "correct"}
             playerName={me.name}
             size="md"
@@ -323,7 +368,7 @@ export function PlayerSession({ code }: { code: string }) {
             <div className="mt-4 race-lane relative h-28 overflow-hidden rounded-[1.5rem] border-2 border-white/15 ring-1 ring-white/10">
               <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-pitGreen/50 to-flagYellow/30 transition-all" style={{ width: `${progress * 100}%` }} />
               <span className="absolute bottom-5 drop-shadow-lg transition-all duration-700" style={{ left: `calc(12px + ${progress * 100}% - ${progress * 66}px)` }}>
-                <Car2D color={me.car_color} model={me.car_model} sticker={me.car_sticker} className="scale-125" />
+                <Car2D color={myCustomization.carColor} model={myCustomization.carModel} sticker={myCustomization.carSticker} className="scale-125" />
               </span>
               <span className="absolute left-4 top-4 text-sm font-black text-white">Sua pista</span>
               <span className="checkered absolute bottom-0 right-0 top-0 w-12" />
@@ -364,7 +409,7 @@ export function PlayerSession({ code }: { code: string }) {
             <div className="mt-3 race-lane relative h-20 overflow-hidden rounded-[1.25rem] border-2 border-white/15">
               <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-pitGreen/50 to-flagYellow/30 transition-all" style={{ width: `${progress * 100}%` }} />
               <span className="absolute bottom-3 drop-shadow-lg transition-all duration-700" style={{ left: `calc(10px + ${progress * 100}% - ${progress * 58}px)` }}>
-                <Car2D color={me.car_color} model={me.car_model} sticker={me.car_sticker} className="scale-105" />
+                <Car2D color={myCustomization.carColor} model={myCustomization.carModel} sticker={myCustomization.carSticker} className="scale-105" />
               </span>
               <span className="checkered absolute bottom-0 right-0 top-0 w-10" />
             </div>

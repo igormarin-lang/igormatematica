@@ -10,6 +10,10 @@ create table if not exists public.sessions (
   question_ends_at timestamptz,
   winner_player_id uuid,
   entries_locked boolean not null default false,
+  last_activity_at timestamptz not null default now(),
+  expires_at timestamptz,
+  ended_at timestamptz,
+  close_reason text,
   created_at timestamptz not null default now()
 );
 

@@ -14,6 +14,10 @@ export type Session = {
   question_ends_at: string | null;
   winner_player_id: string | null;
   entries_locked: boolean | null;
+  last_activity_at?: string | null;
+  expires_at?: string | null;
+  ended_at?: string | null;
+  close_reason?: string | null;
   created_at: string;
 };
 

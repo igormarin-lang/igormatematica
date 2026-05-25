@@ -8,9 +8,8 @@ export function GameAppShell({
   className?: string;
 }) {
   return (
-    <main className={`game-stage-bg flex h-[100dvh] w-screen items-center justify-center overflow-hidden p-3 text-white sm:p-4 ${className}`}>
+    <main className={`game-stage-bg game-stage-shell flex h-[100dvh] w-screen items-center justify-center overflow-hidden text-white ${className}`}>
       {children}
     </main>
   );
 }
-

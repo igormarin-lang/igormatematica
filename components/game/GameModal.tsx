@@ -17,17 +17,16 @@ export function GameModal({
   if (!open) return null;
 
   return (
-    <div className="absolute inset-0 z-50 grid place-items-center bg-green-950/78 p-3 backdrop-blur-sm">
-      <section className="game-window-in flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] border-4 border-green-950 bg-green-800 text-white shadow-[0_14px_0_rgba(0,0,0,.35)]">
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-white/15 bg-green-950/55 px-4 py-3">
-          <h2 className="text-2xl font-black">{title}</h2>
+    <div className="absolute inset-0 z-50 grid place-items-center bg-green-950/78 p-2 backdrop-blur-sm sm:p-3">
+      <section className="game-window-in flex max-h-[calc(100dvh-1rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.4rem] border-[3px] border-green-950 bg-green-800 text-white shadow-[0_10px_0_rgba(0,0,0,.35)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:border-4 sm:shadow-[0_14px_0_rgba(0,0,0,.35)]">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-white/15 bg-green-950/55 px-3 py-2.5 sm:px-4 sm:py-3">
+          <h2 className="min-w-0 truncate text-xl font-black sm:text-2xl">{title}</h2>
           <GameIconButton label="Fechar" onClick={onClose} className="h-11 w-11">
             ×
           </GameIconButton>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4">{children}</div>
       </section>
     </div>
   );
 }
-
