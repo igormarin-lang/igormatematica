@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
+import { GameRouteTransition } from "@/components/game/GameRouteTransition";
 import "./globals.css";
 
 const openSans = Open_Sans({
@@ -16,7 +17,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={openSans.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <GameRouteTransition />
+      </body>
     </html>
   );
 }

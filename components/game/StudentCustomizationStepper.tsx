@@ -67,40 +67,40 @@ export function StudentCustomizationStepper({
   }
 
   return (
-    <section className="mx-auto grid h-full min-h-0 w-full max-w-[1280px] flex-1 grid-rows-[minmax(0,0.42fr)_minmax(0,0.58fr)] gap-2 sm:gap-3 lg:grid-cols-[0.85fr_1.15fr] lg:grid-rows-none">
-      <aside className="min-h-0 overflow-hidden rounded-[1.4rem] border-2 border-white/15 bg-green-950/78 p-2.5 text-center text-white shadow-soft backdrop-blur sm:rounded-[1.7rem] sm:p-4">
+    <section className="mx-auto flex h-full min-h-0 w-full min-w-0 max-w-[1280px] flex-1 flex-col gap-2 overflow-hidden sm:gap-3 lg:grid lg:grid-cols-[0.85fr_1.15fr]">
+      <aside className="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-[1.4rem] border-2 border-white/15 bg-green-950/78 p-2.5 text-center text-white shadow-soft backdrop-blur sm:rounded-[1.7rem] sm:p-4 lg:shrink lg:overflow-hidden">
         <div className="flex items-start justify-between gap-3 text-left">
           <div>
             <p className="text-xs font-black uppercase tracking-wide text-flagYellow">Garagem do aluno</p>
-            <h1 className="game-title mt-1 text-xl font-black leading-none sm:text-4xl">{title}</h1>
+            <h1 className="game-title mt-1 text-lg font-black leading-none sm:text-4xl">{title}</h1>
             <p className="mt-2 hidden max-w-xl text-sm font-semibold text-white/75 sm:block">{subtitle}</p>
           </div>
           <span className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase text-white/80">
             {step + 1}/{steps.length}
           </span>
         </div>
-        <div className="mt-2 h-[calc(100%-4.5rem)] min-h-0 sm:mt-3 lg:h-[min(44vh,23rem)] lg:min-h-64">
+        <div className="mt-2 h-[clamp(9rem,28dvh,13.5rem)] min-h-0 sm:mt-3 sm:h-[clamp(11rem,32dvh,17rem)] lg:h-[min(44vh,23rem)] lg:min-h-64">
           <CarPreview3D
             color={value.carColor}
             model={value.carModel}
             sticker={value.carSticker}
             celebration={value.celebrationEmoji}
             playerName={value.name || "Seu carrinho"}
-            size="md"
+            size="sm"
           />
         </div>
       </aside>
 
-      <div className="flex min-h-0 flex-col overflow-hidden rounded-[1.4rem] border-2 border-green-950/15 bg-white text-green-950 shadow-soft sm:rounded-[2rem]">
-        <div className="border-b border-green-950/10 bg-green-50 px-4 py-3 sm:px-5 sm:py-4">
+      <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[1.4rem] border-2 border-green-950/15 bg-white text-green-950 shadow-soft sm:rounded-[2rem]">
+        <div className="border-b border-green-950/10 bg-green-50 px-3 py-2.5 sm:px-5 sm:py-4">
           <p className="text-xs font-black uppercase tracking-wide text-ifGreen">Etapa {step + 1}</p>
-          <h2 className="text-xl font-black sm:text-2xl">{currentStep}</h2>
+          <h2 className="text-lg font-black sm:text-2xl">{currentStep}</h2>
           {locked ? <p className="mt-2 rounded-2xl bg-flagYellow/35 p-3 text-sm font-black text-green-950">A corrida já começou. Seu carrinho foi travado para esta partida.</p> : null}
         </div>
 
-        <ScrollAreaContent className="px-5 py-4">
+        <ScrollAreaContent className="px-3 py-3 sm:px-5 sm:py-4">
           {step === 0 ? (
-            <div className="grid gap-4">
+            <div className="grid gap-3 sm:gap-4">
               <label className="font-black" htmlFor="student-name">
                 Nome ou apelido
               </label>
@@ -120,20 +120,20 @@ export function StudentCustomizationStepper({
           ) : null}
 
           {step === 1 ? (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
               {carModels.map((item) => (
                 <button
                   key={item.value}
                   type="button"
                   onClick={() => set({ carModel: item.value })}
                   disabled={locked}
-                  className={`rounded-[1.35rem] border-4 px-4 py-4 text-left font-black transition ${
+                  className={`rounded-[1.1rem] border-[3px] px-3 py-3 text-left font-black transition sm:rounded-[1.35rem] sm:border-4 sm:px-4 sm:py-4 ${
                     value.carModel === item.value
                       ? "border-green-950 bg-flagYellow text-green-950 shadow-[0_5px_0_rgba(0,0,0,.22)]"
                       : "border-green-950/15 bg-green-50 text-green-950 hover:border-green-950/45"
                   }`}
                 >
-                  <span className="block text-lg">{item.name}</span>
+                  <span className="block text-base sm:text-lg">{item.name}</span>
                   <span className="text-xs uppercase text-green-900/60">Modelo da corrida</span>
                 </button>
               ))}
@@ -141,18 +141,18 @@ export function StudentCustomizationStepper({
           ) : null}
 
           {step === 2 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
               {carColors.map((color) => (
                 <button
                   key={color.value}
                   type="button"
                   onClick={() => set({ carColor: color.value })}
                   disabled={locked}
-                  className={`flex min-h-20 items-center gap-3 rounded-[1.35rem] border-4 bg-white px-3 py-3 text-left font-black transition ${
+                  className={`flex min-h-16 items-center gap-2 rounded-[1.1rem] border-[3px] bg-white px-3 py-2 text-left text-sm font-black transition sm:min-h-20 sm:gap-3 sm:rounded-[1.35rem] sm:border-4 sm:py-3 sm:text-base ${
                     value.carColor === color.value ? "border-green-950 shadow-[0_5px_0_rgba(0,0,0,.22)]" : "border-green-950/15"
                   }`}
                 >
-                  <span className="h-11 w-11 rounded-full border-4 border-green-950" style={{ backgroundColor: color.value }} />
+                  <span className="h-9 w-9 rounded-full border-[3px] border-green-950 sm:h-11 sm:w-11 sm:border-4" style={{ backgroundColor: color.value }} />
                   <span>{color.name}</span>
                 </button>
               ))}
@@ -160,17 +160,17 @@ export function StudentCustomizationStepper({
           ) : null}
 
           {step === 3 ? (
-            <div className="grid gap-5">
+            <div className="grid gap-4 sm:gap-5">
               <div>
                 <p className="font-black">Adesivo</p>
-                <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-8">
+                <div className="mt-2 grid grid-cols-4 gap-2 sm:mt-3 sm:grid-cols-8">
                   {stickers.map((item) => (
                     <button
                       key={item.value}
                       type="button"
                       onClick={() => set({ carSticker: item.value })}
                       disabled={locked}
-                      className={`h-14 rounded-2xl border-4 text-lg font-black ${
+                      className={`h-12 rounded-2xl border-[3px] text-base font-black sm:h-14 sm:border-4 sm:text-lg ${
                         value.carSticker === item.value ? "border-green-950 bg-green-100" : "border-green-950/15 bg-white"
                       }`}
                       aria-label={item.name}
@@ -183,14 +183,14 @@ export function StudentCustomizationStepper({
 
               <div>
                 <p className="font-black">Comemoração</p>
-                <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+                <div className="mt-2 grid grid-cols-3 gap-2 sm:mt-3 sm:grid-cols-6">
                   {celebrations.map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => set({ celebrationEmoji: item })}
                       disabled={locked}
-                      className={`h-14 rounded-2xl border-4 text-2xl ${
+                      className={`h-12 rounded-2xl border-[3px] text-xl sm:h-14 sm:border-4 sm:text-2xl ${
                         value.celebrationEmoji === item ? "border-green-950 bg-flagYellow" : "border-green-950/15 bg-white"
                       }`}
                     >
@@ -202,14 +202,14 @@ export function StudentCustomizationStepper({
 
               <div>
                 <p className="font-black">Tema do painel</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="mt-2 grid gap-2 sm:mt-3 sm:grid-cols-2">
                   {studentThemes.map((item) => (
                     <button
                       key={item.value}
                       type="button"
                       onClick={() => set({ studentTheme: item.value })}
                       disabled={locked}
-                      className={`rounded-2xl border-4 px-4 py-3 text-left font-black ${
+                      className={`rounded-2xl border-[3px] px-3 py-2 text-left text-sm font-black sm:border-4 sm:px-4 sm:py-3 sm:text-base ${
                         value.studentTheme === item.value ? "border-green-950 bg-green-100" : "border-green-950/15 bg-white"
                       }`}
                     >
@@ -222,7 +222,7 @@ export function StudentCustomizationStepper({
           ) : null}
 
           {step === 4 ? (
-            <div className="grid gap-3">
+            <div className="grid gap-2 sm:gap-3">
               {[
                 ["Nome", value.name || pilotSuggestion],
                 ["Modelo", selectedModel],
@@ -231,7 +231,7 @@ export function StudentCustomizationStepper({
                 ["Comemoração", value.celebrationEmoji],
                 ["Tema", selectedTheme]
               ].map(([label, content]) => (
-                <div key={label} className="flex items-center justify-between gap-4 rounded-2xl bg-green-50 px-4 py-3">
+                <div key={label} className="flex items-center justify-between gap-3 rounded-2xl bg-green-50 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
                   <span className="text-sm font-black uppercase text-green-900/60">{label}</span>
                   <span className="text-right text-lg font-black">{content}</span>
                 </div>
@@ -243,7 +243,7 @@ export function StudentCustomizationStepper({
         </ScrollAreaContent>
 
         <FixedBottomActions>
-          <div className="grid gap-3 sm:grid-cols-[auto_1fr_auto]">
+          <div className={`grid gap-2 ${onCancel ? "grid-cols-3" : "grid-cols-2"} sm:grid-cols-[auto_1fr_auto] sm:gap-3`}>
             {onCancel ? (
               <GameButton type="button" variant="white" onClick={onCancel} disabled={loading}>
                 Fechar

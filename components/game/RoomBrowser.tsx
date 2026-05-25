@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GameButton } from "@/components/GameButton";
 import { GameLoadingScreen } from "@/components/game/GameLoadingScreen";
+import { startGameRouteTransition } from "@/components/game/GameRouteTransition";
 
 type PublicRoom = {
   code: string;
@@ -120,7 +121,15 @@ export function RoomBrowser() {
                   {room.entries_locked ? <span className="rounded-full bg-red-100 px-3 py-1 text-raceRed">Bloqueada</span> : null}
                 </div>
               </div>
-              <GameButton type="button" variant={blocked ? "white" : "green"} disabled={blocked} onClick={() => router.push(`/sessao/${room.code}`)}>
+              <GameButton
+                type="button"
+                variant={blocked ? "white" : "green"}
+                disabled={blocked}
+                onClick={() => {
+                  startGameRouteTransition();
+                  router.push(`/sessao/${room.code}`);
+                }}
+              >
                 Entrar
               </GameButton>
             </article>

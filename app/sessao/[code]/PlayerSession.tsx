@@ -229,12 +229,12 @@ export function PlayerSession({ code }: { code: string }) {
   if (!me) {
     return (
       <GameAppShell>
-        <GameWindow>
-          <div className="flex shrink-0 items-center justify-between gap-3">
+        <GameWindow compact>
+          <div className="flex shrink-0 items-center justify-between gap-2">
             <Link href="/" className="inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-ifGreen shadow-sm ring-1 ring-slate-200">
               Trocar código
             </Link>
-            <span className="rounded-full bg-green-950/80 px-4 py-2 text-sm font-black text-flagYellow">Sessão {code}</span>
+            <span className="max-w-[42vw] truncate rounded-full bg-green-950/80 px-4 py-2 text-sm font-black text-flagYellow">Sessão {code}</span>
           </div>
           <StudentCustomizer
             value={customization}
@@ -258,14 +258,14 @@ export function PlayerSession({ code }: { code: string }) {
     if (!editingWaiting) {
       return (
         <GameAppShell>
-          <GameWindow>
+          <GameWindow compact>
             <GameHeaderCompact
               title="Seu carrinho está pronto"
               subtitle="Aguardando largada"
               right={<span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase text-flagYellow">Sessão {code}</span>}
             />
 
-            <div className="mt-4 grid min-h-0 flex-1 gap-4 overflow-y-auto lg:grid-cols-[0.95fr_1.05fr] lg:overflow-hidden">
+            <div className="mt-2 grid min-h-0 flex-1 gap-2 overflow-hidden sm:mt-4 sm:gap-4 lg:grid-cols-[0.95fr_1.05fr]">
               <div className="min-h-0">
                 <CarPreview3D
                   color={myCustomization.carColor}
@@ -273,11 +273,11 @@ export function PlayerSession({ code }: { code: string }) {
                   sticker={myCustomization.carSticker}
                   celebration={myCustomization.celebrationEmoji}
                   playerName={me.name}
-                  size="large"
+                  size="md"
                 />
               </div>
 
-              <div className="flex min-h-0 flex-col gap-4 overflow-y-auto rounded-[2rem] border-2 border-white/15 bg-green-950/80 p-4 shadow-soft sm:p-5">
+              <div className="flex min-h-0 flex-col gap-3 overflow-y-auto rounded-[1.5rem] border-2 border-white/15 bg-green-950/80 p-3 shadow-soft sm:gap-4 sm:rounded-[2rem] sm:p-5">
                 <div className="text-center lg:text-left">
                   <p className="text-sm font-black uppercase text-flagYellow">A pista espera a turma</p>
                   <h1 className="mt-2 text-3xl font-black sm:text-5xl">Aguardando o professor iniciar</h1>
@@ -310,8 +310,13 @@ export function PlayerSession({ code }: { code: string }) {
 
     return (
       <GameAppShell>
-        <GameWindow>
-          <div className="rounded-[2rem] border-2 border-white/15 bg-green-950/80 p-5 text-center shadow-soft">
+        <GameWindow compact>
+          <GameHeaderCompact
+            title="Seu carrinho estÃ¡ pronto"
+            subtitle="Personalize atÃ© a largada"
+            right={<span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black uppercase text-flagYellow">{code}</span>}
+          />
+          <div className="hidden">
             <p className="text-sm font-black uppercase text-flagYellow">Aguardando largada</p>
             <h1 className="mt-2 text-3xl font-black sm:text-5xl">Seu carrinho está pronto na largada.</h1>
             <p className="mt-2 font-semibold text-white/75">Personalize enquanto o professor inicia a corrida.</p>
@@ -338,14 +343,14 @@ export function PlayerSession({ code }: { code: string }) {
 
   return (
     <GameAppShell>
-      <GameWindow>
+      <GameWindow compact>
         <GameTopBar
           title="Corrida das Expressões"
           subtitle={state?.session.current_round ? `Pergunta ${state.session.current_round} de ${state.session.total_rounds}` : "Corrida em andamento"}
           left={<span className="rounded-full bg-white/10 px-3 py-2 text-xs font-black uppercase text-flagYellow">{code}</span>}
           right={<Timer endsAt={state?.session.question_ends_at ?? null} />}
         />
-      <section className="mt-4 grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[0.72fr_1fr]">
+      <section className="mt-2 grid min-h-0 flex-1 gap-2 overflow-hidden sm:mt-4 sm:gap-4 lg:grid-cols-[0.72fr_1fr]">
         <div className="hidden min-h-0 space-y-4 overflow-y-auto pr-1 lg:block">
           <CarPreview3D
             color={myCustomization.carColor}
@@ -395,8 +400,8 @@ export function PlayerSession({ code }: { code: string }) {
           ) : null}
         </div>
 
-        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
-          <div className="rounded-[1.5rem] border-2 border-white/15 bg-green-950/82 p-3 text-white shadow-soft lg:hidden">
+        <div className="flex min-h-0 flex-col gap-2 overflow-y-auto pr-1 sm:gap-3">
+          <div className="rounded-[1.25rem] border-2 border-white/15 bg-green-950/82 p-2.5 text-white shadow-soft lg:hidden">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[11px] font-black uppercase text-flagYellow">Sessão {code}</p>
@@ -406,7 +411,7 @@ export function PlayerSession({ code }: { code: string }) {
                 {myRank + 1 || "-"}º · {me.score} pts
               </span>
             </div>
-            <div className="mt-3 race-lane relative h-20 overflow-hidden rounded-[1.25rem] border-2 border-white/15">
+            <div className="mt-2 race-lane relative h-16 overflow-hidden rounded-[1.1rem] border-2 border-white/15">
               <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-pitGreen/50 to-flagYellow/30 transition-all" style={{ width: `${progress * 100}%` }} />
               <span className="absolute bottom-3 drop-shadow-lg transition-all duration-700" style={{ left: `calc(10px + ${progress * 100}% - ${progress * 58}px)` }}>
                 <Car2D color={myCustomization.carColor} model={myCustomization.carModel} sticker={myCustomization.carSticker} className="scale-105" />
@@ -416,11 +421,11 @@ export function PlayerSession({ code }: { code: string }) {
           </div>
           <QuestionCard question={state?.question ?? null} status={state?.session.status ?? "waiting"} />
 
-          <form onSubmit={sendAnswer} className="rounded-[2rem] border-2 border-green-950/15 bg-white p-5 text-green-950 shadow-soft backdrop-blur">
+          <form onSubmit={sendAnswer} className="rounded-[1.45rem] border-2 border-green-950/15 bg-white p-3 text-green-950 shadow-soft backdrop-blur sm:rounded-[2rem] sm:p-5">
             <label className="font-black uppercase" htmlFor="answer">
               Sua resposta
             </label>
-            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div className="mt-2 grid gap-2 sm:mt-3 sm:grid-cols-[1fr_auto] sm:gap-3">
               <GameInput
                 id="answer"
                 type="number"
@@ -430,14 +435,14 @@ export function PlayerSession({ code }: { code: string }) {
                 disabled={!canAnswer}
                 placeholder="0"
                 aria-label="Digite sua resposta"
-                className="min-w-0 text-3xl sm:text-left"
+                className="min-w-0 text-2xl sm:text-left sm:text-3xl"
               />
-              <GameButton className="min-h-16" type="submit" icon="➜" disabled={!canAnswer}>
+              <GameButton className="min-h-12 sm:min-h-16" type="submit" icon="➜" disabled={!canAnswer}>
                 {me.answered_current_round ? "Resposta enviada" : "Responder"}
               </GameButton>
             </div>
             <p
-              className={`mt-4 min-h-7 rounded-[1.4rem] border-4 p-4 text-center text-lg font-black ${
+              className={`mt-3 min-h-7 rounded-[1.2rem] border-[3px] p-3 text-center text-base font-black sm:mt-4 sm:rounded-[1.4rem] sm:border-4 sm:p-4 sm:text-lg ${
                 message.type === "correct"
                   ? "border-green-950 bg-green-100 text-ifGreen"
                   : message.type === "wrong"

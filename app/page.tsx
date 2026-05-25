@@ -9,6 +9,7 @@ import { IFSPLogo } from "@/components/IFSPLogo";
 import { GameAppShell } from "@/components/game/GameAppShell";
 import { GameIconButton } from "@/components/game/GameIconButton";
 import { GameModal } from "@/components/game/GameModal";
+import { startGameRouteTransition } from "@/components/game/GameRouteTransition";
 import { GameTopBar } from "@/components/game/GameTopBar";
 import { GameWindow } from "@/components/game/GameWindow";
 import { RoomBrowser } from "@/components/game/RoomBrowser";
@@ -40,7 +41,10 @@ export default function HomePage() {
     const nextCustomization = normalizeStudentCustomization({ ...baseCustomization, name: pilotName.trim() });
     window.localStorage.setItem("corrida-pilot-name", nextCustomization.name);
     window.localStorage.setItem("corrida-student-customization", JSON.stringify(nextCustomization));
-    if (cleanCode.length === 4) router.push(`/sessao/${cleanCode}`);
+    if (cleanCode.length === 4) {
+      startGameRouteTransition();
+      router.push(`/sessao/${cleanCode}`);
+    }
   }
 
   return (

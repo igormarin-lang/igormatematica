@@ -11,7 +11,7 @@ const variants = {
 type Variant = keyof typeof variants;
 
 const base =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-[1.15rem] border-[3px] px-4 py-2.5 text-center text-sm font-black uppercase transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:active:translate-y-0 sm:min-h-14 sm:gap-3 sm:rounded-[1.4rem] sm:border-4 sm:px-6 sm:py-3 sm:text-base";
+  "inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-[1.15rem] border-[3px] px-4 py-2.5 text-center text-sm font-black uppercase transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:active:translate-y-0 sm:min-h-14 sm:gap-3 sm:rounded-[1.4rem] sm:border-4 sm:px-6 sm:py-3 sm:text-base";
 
 export function GameButton({
   icon,
@@ -23,7 +23,7 @@ export function GameButton({
   return (
     <button className={`${base} ${variants[variant]} ${className}`} {...props}>
       {icon ? <span className="text-xl leading-none">{icon}</span> : null}
-      <span>{children}</span>
+      <span className="min-w-0 truncate">{children}</span>
     </button>
   );
 }
@@ -38,7 +38,7 @@ export function GameButtonLink({
   return (
     <Link className={`${base} ${variants[variant]} ${className}`} {...props}>
       {icon ? <span className="text-xl leading-none">{icon}</span> : null}
-      <span>{children}</span>
+      <span className="min-w-0 truncate">{children}</span>
     </Link>
   );
 }
